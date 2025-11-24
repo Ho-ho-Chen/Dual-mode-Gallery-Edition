@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V29.0 Fix</title>
+    <title>Live Mirror AI - V30.0 Fix</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -18,14 +18,13 @@
         .active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* V29: 優化視窗容器，確保佔位符居中 */
         .viewport-container { width: 100%; background: #000; border-radius: 12px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border: 1px solid #333; min-height: 250px; }
         
-        /* V29: 圖片預設強制隱藏，避免破圖 */
+        /* 預設隱藏圖片 */
         #preview-img, #final-result { width: 100%; height: 100%; object-fit: contain; display: none; }
         
-        /* V29: 佔位符樣式 */
-        #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        /* 佔位符 */
+        #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #080808; }
         .placeholder-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
@@ -91,12 +90,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V29.0</span>
+        Live Mirror AI <span class="version-tag">V30.0 核心修正</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V29.0 預覽修復版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V30.0 影像載入修復版</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -120,7 +119,7 @@
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport-container" style="border: 2px solid var(--accent-color);">
+        <div class="viewport-container" style="height: 300px; border: 2px solid var(--accent-color); background: #000;">
             <div id="preview-placeholder">
                 <div class="placeholder-icon">🖼️</div>
                 <span>等待照片載入...</span>
@@ -224,7 +223,7 @@
     <div id="stage-4" class="stage">
         <h2 style="color: var(--accent-color); font-size: 22px;">✨ 您的傳世大作</h2>
         <div class="viewport-container" style="background: transparent; border: none; min-height: 300px; height: auto; padding: 10px;">
-            <div id="result-placeholder" style="display:block;">準備中...</div>
+            <div id="result-placeholder" style="display:block; color:#555;">正在裝裱...</div>
             <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: auto; height: auto; max-width: 100%; max-height: 65vh;">
         </div>
         <p style="color: var(--accent-color); font-weight: bold; font-size: 16px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
@@ -306,7 +305,7 @@
         const stage2 = document.getElementById('stage-2'); 
         const uploadBtn = document.getElementById('btn-upload-finish'); 
         
-        // V29: 切換模式時，先隱藏圖片，顯示佔位符
+        // V30 修正：模式切換時，先隱藏圖片，顯示佔位符
         previewImg.style.display = 'none';
         document.getElementById('preview-placeholder').style.display = 'flex';
 
@@ -320,13 +319,13 @@
             previewImg.classList.add('mirror'); 
         } 
     }
-    
     function triggerUpload() { document.getElementById('file-input').click(); }
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
     function finishUploadMode() { composeFinalImage(previewImg.src, "⚡ 正在為您的照片裝裱..."); }
     function finishDirectMode() { composeFinalImage(previewImg.src, "⚡ 正在為照片裝裱 (原圖)..."); }
 
+    // V30 修正：統一的影像處理流程，確保顯示圖片
     function processInputImage(imgElement, isCamera = false) {
         const MAX_WORK_SIZE = 1200; 
         let w = imgElement.width; let h = imgElement.height;
@@ -338,9 +337,9 @@
         ctx.drawImage(imgElement, 0, 0, w, h);
         previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95);
         
-        // V29: 圖片數據準備好後，執行「顯示圖片、隱藏佔位符」
-        previewImg.style.display = 'block';
+        // V30: 核心修正 - 強制隱藏佔位符，顯示圖片
         document.getElementById('preview-placeholder').style.display = 'none';
+        previewImg.style.display = 'block';
         
         setMode(!isCamera); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2');
     }
@@ -353,7 +352,6 @@
         if (isUploadMode) return; 
         switchStage('stage-3');
         document.getElementById('loading-text').innerText = "⚡ AI 繪圖中...";
-        // V28: 移除救援按鈕
         simulateProgress();
 
         let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; 
@@ -415,7 +413,7 @@
             ctx.restore();
 
             finalImg.src = canvasComp.toDataURL('image/png'); 
-            // V29: 最終結果也應用同樣的隱藏/顯示邏輯
+            // V30: 最終結果強制顯示
             finalImg.style.display = 'block';
             document.getElementById('result-placeholder').style.display = 'none';
             
