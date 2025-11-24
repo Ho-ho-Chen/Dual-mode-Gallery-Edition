@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live Mirror AI - V18.0 Dual Mode</title>
+    <style>
+        /* M28 視覺傳播：黑金藝廊風格 */
+        :root { --bg-color: #000000; --panel-bg: #1a1a1a; --accent-color: #d4af37; /* 金色 */ --text-accent: #ff3366; --text-primary: #ffffff; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
+        #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        
+        header { padding: 15px; text-align: center; border-bottom: 1px solid #333; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); }
+        .version-tag { font-size: 10px; background: var(--accent-color); padding: 2px 6px; border-radius: 4px; color: #000; font-weight: bold; }
+
+        .stage { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .viewport { width: 100%; aspect-ratio: 3/4; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        video, img { width: 100%; height: 100%; object-fit: contain; } 
+        .mirror { transform: scaleX(-1); }
+
+        .control-panel { width: 100%; background: #252525; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #444; transition: all 0.3s; }
+        .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
+        /* V18: 用於隱藏 AI 區域的 class */
+        .ai-only-section { display: block; }
+        .upload-mode .ai-only-section { display: none !important; }
+
+        .detail-textarea { width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; }
+        .detail-input { width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; }
+        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); }
+
+        .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .select-group { display: flex; flex-direction: column; gap: 5px; }
+        .select-label { font-size: 11px; color: #888; margin-left: 2px; }
+        select.detail-select { width: 100%; padding: 8px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
+        select.detail-select:focus { border-color: var(--accent-color); }
+
+        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        
+        /* V18 新增按鈕樣式 */
+        .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
+        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: var(--accent-color); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px;}
+        .btn-upload { background: #444; color: white; border: 1px solid #666; box-shadow: none; }
+        .btn-upload:hover { background: #555; }
+
+        select.camera-select { width: 100%; padding: 12px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 12px; font-size: 16px; outline: none; }
+        
+        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; padding-bottom: 40px;}
+        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 12px; padding: 12px 5px; cursor: pointer; text-align: center; font-size: 15px; position: relative; overflow: hidden; transition: all 0.2s; }
+        .style-card:active { transform: scale(0.96); background: #444; }
+        .style-real { border-color: var(--accent-color); }
+        .style-tao { border-color: #ffffff; background: linear-gradient(45deg, #2a2a2a, #555); }
+
+        .gender-toggle { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+        .gender-option { flex: 1; text-align: center; padding: 10px; background: #333; border-radius: 10px; border: 1px solid #555; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
+        .gender-option.selected { background: var(--accent-color); color: #000; }
+        
+        #canvas { display: none; }
+        /* V18 隱藏的檔案輸入框 */
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="app-window">
+    <header>
+        Live Mirror AI <span class="version-tag">V18.0 雙模版</span>
+    </header>
+
+    <div id="start-overlay">
+        <h1 style="color:white; margin-bottom:10px;">👋 歡迎體驗</h1>
+        <p style="color:#aaa; margin-bottom:20px;">請選擇模式</p>
+        
+        <div class="btn-group">
+            <button class="btn-action" onclick="firstStartCamera()">📸 啟動相機<br>(AI 生成)</button>
+            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片<br>(純裝裱)</button>
+        </div>
+
+        <div id="step-selection" style="display:none; width:100%; margin-top: 20px;">
+            <p style="color:white; margin-bottom:15px;">已偵測到相機：</p>
+            <select id="camera-list" class="camera-select"></select>
+            <div style="display:flex; justify-content:center;"><button class="btn-action" onclick="startSpecificCamera()">✅ 確認</button></div>
+        </div>
+        <p id="error-msg" style="color: #ff3366; font-size: 12px; margin-top: 20px; max-width: 80%;"></p>
+    </div>
+    
+    <input type="file" id="file-input" accept="image/*">
+
+    <div id="stage-1" class="stage">
+        <div class="viewport">
+            <video id="webcam" playsinline class="mirror" autoplay></video>
+        </div>
+        <button class="btn-action" onclick="capturePhoto()">📸 拍照</button>
+        <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
+    </div>
+
+    <div id="stage-2" class="stage">
+        <div class="viewport" style="width: 160px; height: 160px; border-radius: 12px; border: 2px solid var(--accent-color); margin-top: 5px;">
+            <img id="preview-img" src="">
+        </div>
+        
+        <div class="ai-only-section">
+            <div class="gender-toggle">
+                <div class="gender-option" onclick="switchGender('boy')" id="btn-boy">👦 男生</div>
+                <div class="gender-option selected" onclick="switchGender('girl')" id="btn-girl">👧 女生</div>
+            </div>
+
+            <div class="control-panel">
+                <div class="panel-title">🎬 導演指令 (AI設定)</div>
+                <div class="select-grid">
+                    <div class="select-group"><span class="select-label">👗 服裝</span><select id="opt-clothes" class="detail-select"></select></div>
+                    <div class="select-group"><span class="select-label">💇 髮型</span><select id="opt-hair" class="detail-select"></select></div>
+                    <div class="select-group"><span class="select-label">👑 頭飾</span><select id="opt-headwear" class="detail-select"></select></div>
+                    <div class="select-group"><span class="select-label">🤲 手持物品</span><select id="opt-held" class="detail-select"></select></div>
+                    <div class="select-group"><span class="select-label">📍 地點</span><select id="opt-location" class="detail-select">
+                        <option value="">(隨機)</option><option value="in a forest">森林</option><option value="at the beach">海邊</option><option value="in a cyberpunk city">未來城市</option><option value="in an ancient temple">古老廟宇</option><option value="in a classroom">教室</option><option value="in outer space">外太空</option><option value="in a library">圖書館</option><option value="in a flower field">浪漫花海</option><option value="on a snowy mountain">雪山之巔</option><option value="on a concert stage">演唱會舞台</option>
+                    </select></div>
+                    <div class="select-group"><span class="select-label">🌤️ 天氣/氛圍</span><select id="opt-weather" class="detail-select">
+                        <option value="">(隨機)</option><option value="sunny day, bright lighting">陽光燦爛</option><option value="raining, cinematic lighting">下雨電影感</option><option value="starry night">星空夜晚</option><option value="sunset, golden hour">黃昏金光</option><option value="foggy, mysterious">霧氣神秘</option><option value="cherry blossoms falling">櫻花雨</option><option value="northern lights sky">極光</option><option value="rainbow in sky">彩虹</option><option value="thunderstorm background">雷電交加</option>
+                    </select></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel" style="border-color: var(--text-accent);">
+            <div class="panel-title" style="color: var(--text-accent);">✍️ 圖文題字與裝裱</div>
+            <div style="display: flex; flex-direction: column;">
+                <textarea id="text-main" rows="2" placeholder="輸入你想寫的話..." class="detail-textarea"></textarea>
+                <div class="select-grid">
+                    <div class="select-group"><span class="select-label">🅰️ 文字風格</span><select id="text-style" class="detail-select"><option value="none">(不加文字)</option><option value="calligraphy">1. 古典書法</option><option value="neon">2. 賽博霓虹</option><option value="comic">3. 熱血漫畫</option><option value="cute">4. 可愛手寫</option><option value="elegant">5. 優雅金漆</option><option value="typewriter">6. 復古打字機</option><option value="graffiti">7. 街頭塗鴉</option><option value="headline">8. 新聞標題</option><option value="stone">9. 浮雕石刻</option><option value="ink">10. 水墨暈染</option></select></div>
+                    <div class="select-group"><span class="select-label">↕️ 文字位置</span><select id="text-position" class="detail-select"><option value="bottom">置底 (預設)</option><option value="top">置頂</option><option value="center">正中間</option></select></div>
+                </div>
+                <div style="display: flex; align-items: center; border-top: 1px solid #444; padding-top: 10px; margin-top: 10px;">
+                    <span style="font-size: 20px; margin-right: 5px;">🈴</span>
+                    <input type="text" id="text-signature" placeholder="輸入落款大名 (紅印)" class="detail-input" style="margin-bottom: 0; border-color: #ff3333;">
+                </div>
+                <div class="select-group" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 10px;">
+                    <span class="select-label">🖼️ 藝廊邊框 (10種)</span>
+                    <select id="frame-style" class="detail-select" style="border-color: var(--accent-color);">
+                        <option value="none">(不加邊框)</option><option value="gold_classic">1. 經典金箔框</option><option value="silver_antique">2. 古典銀雕框</option><option value="wood_walnut">3. 深色胡桃木</option><option value="wood_oak">4. 淺色橡木框</option><option value="museum_mat">5. 博館級襯紙</option><option value="gallery_black">6. 極簡黑藝廊</option><option value="ornate_vintage">7. 歐式繁複框</option><option value="modern_metal">8. 工業風金屬</option><option value="rustic">9. 鄉村風舊木</option><option value="neon_cyber">10. 賽博霓虹框</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-only-section">
+            <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:10px;">確認 AI 畫風：</h3>
+            <div class="style-grid">
+                <div class="style-card style-real" onclick="generateAI('real')">📸 真人擬真</div>
+                <div class="style-card style-tao" onclick="generateAI('taoist')">🕊️ 白陽聖潔</div>
+                <div class="style-card" onclick="generateAI('pixar')">🧸 皮克斯風</div>
+                <div class="style-card" onclick="generateAI('ghibli')">🍃 吉卜力風</div>
+                <div class="style-card" onclick="generateAI('cyberpunk')">🌃 賽博龐克</div>
+                <div class="style-card" onclick="generateAI('oil')">🎨 梵谷油畫</div>
+                <div class="style-card" onclick="generateAI('comic')">💥 美式漫畫</div>
+                <div class="style-card" onclick="generateAI('ink')">🖌️ 東方水墨</div>
+            </div>
+        </div>
+
+        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認裝裱 (跳過AI)</button>
+        
+        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:15px;" onclick="location.reload()">⬅️ 返回首頁</button>
+    </div>
+
+    <div id="stage-3" class="stage" style="justify-content: center;">
+        <h2 id="loading-text">⚡ 處理中...</h2>
+        <div style="width:70%; height:6px; background:#333; margin-top:20px; border-radius:3px;">
+            <div id="progress-bar" style="width:0%; height:100%; background:var(--accent-color); transition:width 0.3s;"></div>
+        </div>
+        <p id="prompt-debug" style="color:#666; font-size:12px; margin-top:15px; max-width:80%; text-align:center;"></p>
+    </div>
+
+    <div id="stage-4" class="stage">
+        <h2>✨ 您的典藏大作</h2>
+        <div class="viewport" style="background: transparent; box-shadow: none;">
+            <img id="final-result" src="">
+        </div>
+        <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 5px;">👇 長按圖片儲存 👇</p>
+        <div style="font-size: 13px; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; width: 100%; text-align: center;">
+            分享連結：
+            <div id="qrcode-container" style="margin-top: 10px; background: white; padding: 10px; display: inline-block; border-radius: 12px;"></div>
+        </div>
+        <button class="btn-action" onclick="location.reload()" style="background:#333; color:white; font-size:16px; margin-top: 20px; max-width:none;">🔄 再玩一次</button>
+    </div>
+
+    <canvas id="canvas-comp"></canvas>
+    <canvas id="canvas" style="display:none;"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+    const video = document.getElementById('webcam'), canvas = document.getElementById('canvas'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
+    const canvasComp = document.getElementById('canvas-comp');
+    let currentGender = 'girl'; 
+    let isUploadMode = false; // V18: 模式旗標
+
+    const optionsData = {
+        girl: {
+            clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}],
+            hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}],
+            headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}],
+            held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}]
+        },
+        boy: {
+            clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}],
+            hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}],
+            headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}],
+            held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}]
+        }
+    };
+
+    function updateOptions(gender) {
+        const data = optionsData[gender];
+        const populate = (id, items) => {
+            const select = document.getElementById(id); select.innerHTML = "";
+            items.forEach(item => { const opt = document.createElement("option"); opt.value = item.val; opt.innerText = item.txt; select.appendChild(opt); });
+        };
+        populate('opt-clothes', data.clothes); populate('opt-hair', data.hair); populate('opt-headwear', data.headwear); populate('opt-held', data.held);
+    }
+    function switchGender(g) {
+        currentGender = g;
+        document.getElementById('btn-boy').classList.toggle('selected', g==='boy');
+        document.getElementById('btn-girl').classList.toggle('selected', g==='girl');
+        updateOptions(g);
+    }
+    window.onload = () => { updateOptions('girl'); };
+
+    // --- V18: 模式切換邏輯 ---
+    function setMode(upload) {
+        isUploadMode = upload;
+        const stage2 = document.getElementById('stage-2');
+        const uploadBtn = document.getElementById('btn-upload-finish');
+        
+        if (isUploadMode) {
+            stage2.classList.add('upload-mode');
+            uploadBtn.style.display = 'flex';
+            previewImg.classList.remove('mirror'); // 上傳照片不鏡像
+        } else {
+            stage2.classList.remove('upload-mode');
+            uploadBtn.style.display = 'none';
+            previewImg.classList.add('mirror'); // 相機照片要鏡像
+        }
+    }
+
+    // --- V18: 上傳功能處理 ---
+    function triggerUpload() {
+        document.getElementById('file-input').click();
+    }
+
+    document.getElementById('file-input').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                previewImg.src = event.target.result;
+                setMode(true); // 設定為上傳模式
+                document.getElementById('start-overlay').style.display = 'none';
+                switchStage('stage-2');
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    // --- V18: 上傳模式的完成按鈕 ---
+    function finishUploadMode() {
+        // 直接使用預覽圖進行合成，不經過 AI
+        composeFinalImage(previewImg.src, "照片裝裱中...");
+    }
+
+
+    // --- V17 核心：藝廊級合成 (共用) ---
+    // V18 修改: 增加 loadingMsg 參數
+    function composeFinalImage(sourceImageUrl, loadingMsg) {
+        switchStage('stage-3'); 
+        document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中...";
+        document.getElementById('prompt-debug').innerText = ""; // 清空 AI 提示
+        simulateProgress();
+
+        const rawText = document.getElementById('text-main').value;
+        const textStyle = document.getElementById('text-style').value;
+        const signature = document.getElementById('text-signature').value;
+        const position = document.getElementById('text-position').value;
+        const frameStyle = document.getElementById('frame-style').value;
+
+        const baseImg = new Image();
+        baseImg.crossOrigin = "anonymous"; 
+        baseImg.onload = () => {
+            let frameThickness = 0;
+            let matThickness = 0;
+            if (frameStyle !== 'none') {
+                frameThickness = Math.floor(baseImg.width * 0.05);
+                if (frameStyle === 'museum_mat') matThickness = Math.floor(baseImg.width * 0.08);
+            }
+            
+            const totalBorder = frameThickness + matThickness;
+            canvasComp.width = baseImg.width + (totalBorder * 2);
+            canvasComp.height = baseImg.height + (totalBorder * 2);
+            const ctx = canvasComp.getContext('2d');
+            const cw = canvasComp.width;
+            const ch = canvasComp.height;
+
+            if (frameStyle !== 'none') {
+                applyFrameDrawing(ctx, frameStyle, cw, ch, frameThickness, matThickness);
+            }
+
+            const contentX = totalBorder;
+            const contentY = totalBorder;
+            const contentW = baseImg.width;
+            const contentH = baseImg.height;
+
+            ctx.drawImage(baseImg, contentX, contentY);
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(contentX, contentY, contentW, contentH);
+            ctx.clip();
+
+            if (rawText && textStyle !== 'none') {
+                const lines = rawText.split('\n');
+                applyTextStyle(ctx, textStyle, contentW);
+                ctx.textAlign = 'center';
+                const fontSize = Math.floor(contentW / 15);
+                const lineHeight = fontSize * 1.3;
+                let startY;
+                if (position === 'top') startY = contentY + 80;
+                else if (position === 'center') startY = contentY + (contentH / 2) - ((lines.length * lineHeight) / 2);
+                else startY = contentY + contentH - 150 - (lines.length * lineHeight);
+
+                lines.forEach((line, i) => {
+                    let y = startY + (i * lineHeight);
+                    ctx.fillText(line, contentX + contentW / 2, y);
+                    if (['comic', 'neon', 'stone'].includes(textStyle)) { ctx.strokeText(line, contentX + contentW / 2, y); }
+                });
+            }
+            if (signature) {
+                drawSignature(ctx, signature, contentX + contentW, contentY + contentH);
+            }
+            ctx.restore();
+
+            if (frameStyle !== 'none' && frameStyle !== 'neon_cyber') {
+                 drawInnerShadow(ctx, contentX, contentY, contentW, contentH);
+            }
+
+            finalImg.src = canvasComp.toDataURL('image/png');
+            document.getElementById("qrcode-container").innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); 
+            switchStage('stage-4');
+        };
+        baseImg.onerror = () => { alert("圖片載入失敗"); location.reload(); };
+        baseImg.src = sourceImageUrl;
+    }
+
+    // V17: Canvas 邊框繪製器
+    function applyFrameDrawing(ctx, style, w, h, ft, mt) {
+        const total = ft + mt;
+        ctx.fillStyle = (style === 'museum_mat') ? '#fcfcfc' : '#1a1a1a';
+        ctx.fillRect(0, 0, w, h);
+        if (mt > 0) {
+            ctx.fillStyle = '#f0f0f0'; ctx.fillRect(ft, ft, w - ft*2, h - ft*2);
+            ctx.strokeStyle = '#ddd'; ctx.lineWidth = 2; ctx.strokeRect(ft, ft, w - ft*2, h - ft*2);
+        }
+        if (ft > 0) {
+            let grad = ctx.createLinearGradient(0, 0, w, h);
+            switch(style) {
+                case 'gold_classic': grad.addColorStop(0, '#b88a00'); grad.addColorStop(0.5, '#ffd700'); grad.addColorStop(1, '#b88a00'); break;
+                case 'silver_antique': grad.addColorStop(0, '#555'); grad.addColorStop(0.5, '#aaa'); grad.addColorStop(1, '#555'); break;
+                case 'wood_walnut': grad = ctx.createLinearGradient(0, 0, ft, 0); grad.addColorStop(0, '#3d2314'); grad.addColorStop(1, '#5c3a21'); break;
+                case 'wood_oak': grad = ctx.createLinearGradient(0, 0, ft, 0); grad.addColorStop(0, '#c4a484'); grad.addColorStop(1, '#e3cdb5'); break;
+                case 'gallery_black': case 'museum_mat': grad = '#222'; break;
+                 case 'ornate_vintage': grad.addColorStop(0, '#4a3c2a'); grad.addColorStop(0.3, '#8c7355'); grad.addColorStop(0.7, '#4a3c2a'); grad.addColorStop(1, '#2b2218'); break;
+                case 'modern_metal': grad.addColorStop(0, '#666'); grad.addColorStop(0.5, '#e6e6e6'); grad.addColorStop(1, '#666'); break;
+                 case 'rustic': grad = ctx.createPattern(createWoodPattern(ft), 'repeat'); break;
+                case 'neon_cyber': grad = '#000'; break;
+            }
+            ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.fillStyle = grad; ctx.fill('evenodd');
+            if (style !== 'gallery_black' && style !== 'neon_cyber' && style !== 'rustic') {
+                let gradLight = ctx.createLinearGradient(0,0,w,h); gradLight.addColorStop(0, 'rgba(255,255,255,0.4)'); gradLight.addColorStop(1, 'transparent');
+                ctx.strokeStyle = gradLight; ctx.lineWidth = 4; ctx.strokeRect(0,0,w,h);
+                let gradDark = ctx.createLinearGradient(0,0,w,h); gradDark.addColorStop(0, 'transparent'); gradDark.addColorStop(1, 'rgba(0,0,0,0.5)');
+                ctx.strokeStyle = gradDark; ctx.lineWidth = 4; ctx.strokeRect(total, total, w - total*2, h - total*2);
+            }
+            if (style === 'neon_cyber') {
+                ctx.shadowColor = '#00eaff'; ctx.shadowBlur = 30; ctx.strokeStyle = '#ff00de'; ctx.lineWidth = 6;
+                ctx.strokeRect(total - 3, total - 3, w - total*2 + 6, h - total*2 + 6); ctx.shadowBlur = 0;
+            }
+        }
+    }
+    function drawInnerShadow(ctx, x, y, w, h) {
+        ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 20; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        ctx.strokeStyle = "rgba(0,0,0,0.1)"; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h); ctx.shadowBlur = 0;
+    }
+    function createWoodPattern(size) {
+        const pCanvas = document.createElement('canvas'); pCanvas.width = size; pCanvas.height = size; const pCtx = pCanvas.getContext('2d');
+        pCtx.fillStyle = '#5c4033'; pCtx.fillRect(0,0,size,size);
+        for(let i=0; i<10; i++) { pCtx.strokeStyle = 'rgba(0,0,0,0.2)'; pCtx.lineWidth = Math.random()*2+1; pCtx.beginPath(); pCtx.moveTo(0, Math.random()*size); pCtx.lineTo(size, Math.random()*size + Math.random()*10-5); pCtx.stroke(); }
+        return pCanvas;
+    }
+
+    // --- 既有相機與 AI 邏輯 ---
+    function applyTextStyle(ctx, style, w) {
+        const fontSize = Math.floor(w / 15); ctx.font = `bold ${fontSize}px "Microsoft JhengHei", sans-serif`; ctx.lineWidth = fontSize / 10; ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+        switch(style) {
+            case 'calligraphy': ctx.fillStyle = 'white'; ctx.font = `bold ${fontSize*1.2}px "Kaiti SC", STKaiti, serif`; ctx.shadowColor="black"; ctx.shadowBlur=10; break;
+            case 'neon': ctx.fillStyle = '#00eaff'; ctx.strokeStyle = '#ff00de'; ctx.shadowColor = '#00eaff'; ctx.shadowBlur = 20; ctx.lineWidth = 5; break;
+            case 'comic': ctx.fillStyle = '#ffd700'; ctx.strokeStyle = 'black'; ctx.lineWidth = 8; ctx.font = `900 ${fontSize*1.1}px "Arial Black", sans-serif`; break;
+            case 'cute': ctx.fillStyle = '#ff99cc'; ctx.font = `bold ${fontSize}px "Comic Sans MS", cursive`; ctx.shadowColor="white"; ctx.shadowBlur=5; break;
+            case 'elegant': ctx.fillStyle = '#d4af37'; ctx.font = `italic bold ${fontSize}px serif`; ctx.shadowColor="#333"; ctx.shadowBlur=5; break;
+            case 'typewriter': ctx.fillStyle = '#00ff00'; ctx.font = `${fontSize}px monospace`; ctx.shadowColor="black"; ctx.shadowBlur=2; break;
+            case 'graffiti': ctx.fillStyle = 'white'; ctx.strokeStyle = '#ff3300'; ctx.lineWidth = 5; ctx.font = `900 ${fontSize*1.2}px sans-serif`; break;
+            case 'headline': ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 4; ctx.font = `900 ${fontSize*1.3}px impact, sans-serif`; break;
+            case 'stone': ctx.fillStyle = '#888888'; ctx.strokeStyle = '#333333'; ctx.lineWidth = 3; ctx.shadowColor="black"; ctx.shadowBlur=2; ctx.shadowOffsetX=2; ctx.shadowOffsetY=2; break;
+            case 'ink': ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.font = `bold ${fontSize*1.1}px "Kaiti SC", STKaiti, serif`; ctx.shadowColor="rgba(255,255,255,0.5)"; ctx.shadowBlur=5; break;
+        }
+    }
+    function drawSignature(ctx, name, rightX, bottomY) {
+        const fontSize = Math.floor((rightX*0.9) / 25); ctx.font = `bold ${fontSize}px "Kaiti SC", STKaiti, serif`; ctx.fillStyle = '#cc0000'; ctx.textAlign = 'right'; ctx.shadowBlur = 0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0; ctx.fillText("— " + name + " 印", rightX - 30, bottomY - 30);
+    }
+
+    // V18: 重新命名啟動函式
+    async function firstStartCamera() {
+        errorMsg.innerText = "";
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            await listCameras();
+            stream.getTracks().forEach(track => track.stop());
+            setMode(false); // 設定為相機模式
+            document.getElementById('start-overlay').style.display = 'none';
+            switchStage('stage-1');
+        } catch (err) { errorMsg.innerText = "啟動失敗：" + err.message + "\n請用 Chrome 開啟"; }
+    }
+    async function listCameras() {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        cameraList.innerHTML = '';
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            let label = device.label || `相機 ${index + 1}`;
+            if (label.toLowerCase().includes('back') || label.includes('後')) label = "📸 後置鏡頭";
+            else if (label.toLowerCase().includes('front') || label.includes('前')) label = "👤 前置自拍";
+            option.text = label;
+            cameraList.appendChild(option);
+        });
+    }
+    async function startSpecificCamera() {
+        const deviceId = cameraList.value;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } });
+            video.srcObject = stream;
+            document.getElementById('start-overlay').style.display = 'none';
+            switchStage('stage-1');
+        } catch (err) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                document.getElementById('start-overlay').style.display = 'none';
+                switchStage('stage-1');
+            } catch (fatalErr) { alert("無法啟動相機"); }
+        }
+    }
+    function capturePhoto() {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        previewImg.src = canvas.toDataURL('image/png'); 
+        setMode(false); // 確保是相機模式
+        switchStage('stage-2');
+    }
+    function getDetails() {
+        const ids = ['opt-clothes', 'opt-hair', 'opt-headwear', 'opt-held', 'opt-location', 'opt-weather'];
+        let details = [];
+        ids.forEach(id => { const val = document.getElementById(id).value; if(val) details.push(val); });
+        return details.join(", ");
+    }
+    
+    // V18: 重新命名 AI 生成函式
+    function generateAI(styleKey) {
+        // 只有在非上傳模式下才執行 AI
+        if (isUploadMode) return;
+
+        // V18 修改: 傳遞 loadingMsg
+        composeFinalImage(null, "⚡ AI 繪圖與裝裱中..."); 
+        document.getElementById('prompt-debug').innerText = "AI 指令運算中...";
+
+        let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female";
+        let detailPrompt = getDetails(); 
+        let fullPrompt = "";
+        if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`;
+        else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`;
+        else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`;
+        else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`;
+        else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`;
+        else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`;
+        else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`;
+        else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`;
+        
+        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`;
+        
+        // 這裡我們只需要 AI 的網址，不需要它載入圖片，因為 composeFinalImage 會處理
+        // 我們重新呼叫一次 composeFinalImage，這次帶上真正的 AI URL
+        setTimeout(() => {
+             composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中...");
+        }, 100);
+    }
+    
+    function simulateProgress() { const bar = document.getElementById('progress-bar'); let w = 0; const int = setInterval(() => { if(w>=90) clearInterval(int); w+=10; bar.style.width=w+'%'; }, 300); }
+    function switchStage(id) { document.querySelectorAll('.stage').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); }); const target = document.getElementById(id); target.style.display = 'flex'; setTimeout(()=>target.classList.add('active'), 10); }
+</script>
+</body>
+</html>
