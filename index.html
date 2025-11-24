@@ -3,64 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Mirror AI - V21.0 Premium</title>
+    <title>Live Mirror AI - V22.0 Ultimate</title>
     <style>
-        /* M28 視覺傳播：極致黑金美學 */
-        :root { --bg-color: #0a0a0a; --panel-bg: #141414; --accent-color: #c5a059; /* 香檳金 */ --text-accent: #ff5c5c; --text-primary: #e0e0e0; }
+        /* M28 視覺傳播：傳世典藏黑金風格 */
+        :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; /* 香檳金 */ --accent-highlight: #ffd700; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
         * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
-        #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", -apple-system, sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
+        #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); }
         
-        header { padding: 15px; text-align: center; border-bottom: 1px solid #333; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); letter-spacing: 1px; }
-        .version-tag { font-size: 10px; background: linear-gradient(45deg, #d4af37, #f0e68c); padding: 2px 8px; border-radius: 4px; color: #000; font-weight: 900; }
+        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .version-tag { font-size: 10px; background: linear-gradient(45deg, var(--accent-color), var(--accent-highlight)); padding: 3px 8px; border-radius: 4px; color: #000; font-weight: 900; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
         .stage { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
         .active { display: flex; animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .viewport { width: 100%; min-height: 300px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; flex: none; }
-        video, img { width: 100%; height: 100%; object-fit: contain; max-height: 60vh; } 
+        .viewport { width: 100%; min-height: 300px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; flex: none; border-radius: 8px; }
+        video, img { width: 100%; height: 100%; object-fit: contain; max-height: 55vh; } 
         .mirror { transform: scaleX(-1); }
 
-        .control-panel { width: 100%; background: #1f1f1f; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .control-panel { width: 100%; background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
         .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 1px; }
         
         .ai-only-section { display: block; }
         .upload-mode .ai-only-section { display: none !important; }
 
-        .detail-textarea { width: 100%; padding: 10px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 6px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; }
-        .detail-input { width: 100%; padding: 10px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 6px; font-size: 14px; outline: none; margin-bottom: 10px; }
-        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); background: #333; }
+        /* V22: 優化輸入框樣式 */
+        .detail-textarea { width: 100%; padding: 12px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; transition: border 0.3s, background 0.3s; }
+        .detail-input { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; transition: border 0.3s, background 0.3s; }
+        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); background: #333; box-shadow: 0 0 8px rgba(197, 160, 89, 0.2); }
 
         .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .select-group { display: flex; flex-direction: column; gap: 5px; }
-        .select-label { font-size: 11px; color: #888; margin-left: 2px; }
-        select.detail-select { width: 100%; padding: 8px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 6px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
-        select.detail-select:focus { border-color: var(--accent-color); }
+        .select-label { font-size: 11px; color: #888; margin-left: 2px; font-weight: bold; }
+        select.detail-select { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s, background 0.3s; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27292.4%27%20height%3D%27292.4%27%3E%3Cpath%20fill%3D%27%23c5a059%27%20d%3D%27M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2087.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%208%205.4%2013%205.4s9.3-1.8%2013-5.4l128-128c3.6-3.6%205.4-8%205.4-13%200-5-1.8-9.3-5.4-13z%27%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 12px auto; padding-right: 30px; }
+        select.detail-select:focus { border-color: var(--accent-color); background-color: #333; }
 
-        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -6px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; margin: 10px 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -7px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 2px solid #fff; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
 
-        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; backdrop-filter: blur(5px); }
+        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; backdrop-filter: blur(8px); }
         
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, #d4af37, #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; }
-        .btn-action:active { transform: scale(0.95); }
-        .btn-upload { background: linear-gradient(135deg, #444, #222); color: white; border: 1px solid #555; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .btn-upload:hover { background: #555; }
+        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; }
+        .btn-action:active { transform: scale(0.97); box-shadow: 0 2px 5px rgba(197, 160, 89, 0.3); }
+        .btn-upload { background: linear-gradient(135deg, #333, #1a1a1a); color: white; border: 1px solid #444; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .btn-upload:hover { background: #444; border-color: #555; }
+        /* V22 新增按鈕 */
+        .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
 
         select.camera-select { width: 100%; padding: 12px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 12px; font-size: 16px; outline: none; }
         
         .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; padding-bottom: 40px;}
-        .style-card { background: #252525; border: 1px solid #444; border-radius: 8px; padding: 12px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .style-card { background: #222; border: 1px solid #444; border-radius: 10px; padding: 15px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: bold; color: #ccc; }
+        .style-card:hover { border-color: var(--accent-color); color: white; background: #2a2a2a; }
         .style-card:active { transform: scale(0.96); background: #333; }
-        .style-real { border: 1px solid var(--accent-color); background: rgba(212, 175, 55, 0.1); }
-        .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
+        .style-real { border: 1px solid var(--accent-color); background: linear-gradient(45deg, rgba(197, 160, 89, 0.1), transparent); color: var(--accent-color); }
 
         .gender-toggle { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
-        .gender-option { flex: 1; text-align: center; padding: 10px; background: #252525; border-radius: 8px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
-        .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .gender-option { flex: 1; text-align: center; padding: 12px; background: #222; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
+        .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(197, 160, 89, 0.3); }
         
         canvas { display: none !important; }
         #file-input { display: none; }
@@ -70,16 +73,16 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V21.0 Premium</span>
+        Live Mirror AI <span class="version-tag">V22.0 傳世典藏</span>
     </header>
 
     <div id="start-overlay">
-        <h1 style="color:white; margin-bottom:10px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:20px;">V21.0 頂級工藝版</p>
+        <h1 style="color:white; margin-bottom:10px; font-size: 28px;">👋 歡迎體驗</h1>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 16px;">V22.0 國寶級大師版</p>
         
         <div id="btn-container" class="btn-group">
-            <button class="btn-action" onclick="initCameraMode()">📸 啟動相機<br>(AI 生成)</button>
-            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片<br>(純裝裱)</button>
+            <button class="btn-action" onclick="initCameraMode()">📸 啟動相機<br><span style="font-size:12px; opacity:0.8;">(AI 繪圖 / 純裝裱)</span></button>
+            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片<br><span style="font-size:12px; opacity:0.8;">(直接裝裱)</span></button>
         </div>
 
         <div id="step-selection" style="display:none; width:100%; margin-top: 20px;">
@@ -96,12 +99,12 @@
         <div class="viewport" style="aspect-ratio: 3/4;">
             <video id="webcam" playsinline class="mirror" autoplay></video>
         </div>
-        <button class="btn-action" onclick="capturePhoto()">📸 拍照</button>
+        <button class="btn-action" onclick="capturePhoto()" style="max-width: none; width: 90%; height: 60px; font-size: 20px;">📸 拍 照</button>
         <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport" style="width: 160px; height: 160px; min-height: auto; border-radius: 12px; border: 2px solid var(--accent-color); margin-top: 5px;">
+        <div class="viewport" style="width: 180px; height: 180px; min-height: auto; border-radius: 12px; border: 3px solid var(--accent-color); margin-top: 5px; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2);">
             <img id="preview-img" src="">
         </div>
         
@@ -110,28 +113,37 @@
                 <div class="gender-option" onclick="switchGender('boy')" id="btn-boy">👦 男生</div>
                 <div class="gender-option selected" onclick="switchGender('girl')" id="btn-girl">👧 女生</div>
             </div>
-
-            <div class="control-panel">
-                <div class="panel-title">🎬 導演指令 (AI設定)</div>
-                <div class="select-grid">
-                    <div class="select-group"><span class="select-label">👗 服裝</span><select id="opt-clothes" class="detail-select"></select></div>
-                    <div class="select-group"><span class="select-label">💇 髮型</span><select id="opt-hair" class="detail-select"></select></div>
-                    <div class="select-group"><span class="select-label">👑 頭飾</span><select id="opt-headwear" class="detail-select"></select></div>
-                    <div class="select-group"><span class="select-label">🤲 手持物品</span><select id="opt-held" class="detail-select"></select></div>
-                    <div class="select-group"><span class="select-label">📍 地點</span><select id="opt-location" class="detail-select">
-                        <option value="">(隨機)</option><option value="in a forest">森林</option><option value="at the beach">海邊</option><option value="in a cyberpunk city">未來城市</option><option value="in an ancient temple">古老廟宇</option><option value="in a classroom">教室</option><option value="in outer space">外太空</option><option value="in a library">圖書館</option><option value="in a flower field">浪漫花海</option><option value="on a snowy mountain">雪山之巔</option><option value="on a concert stage">演唱會舞台</option>
-                    </select></div>
-                    <div class="select-group"><span class="select-label">🌤️ 天氣/氛圍</span><select id="opt-weather" class="detail-select">
-                        <option value="">(隨機)</option><option value="sunny day, bright lighting">陽光燦爛</option><option value="raining, cinematic lighting">下雨電影感</option><option value="starry night">星空夜晚</option><option value="sunset, golden hour">黃昏金光</option><option value="foggy, mysterious">霧氣神秘</option><option value="cherry blossoms falling">櫻花雨</option><option value="northern lights sky">極光</option><option value="rainbow in sky">彩虹</option><option value="thunderstorm background">雷電交加</option>
-                    </select></div>
-                </div>
-            </div>
+            <div class="control-panel"><div class="panel-title">🎬 導演指令 (AI設定)</div><div class="select-grid"><div class="select-group"><span class="select-label">👗 服裝</span><select id="opt-clothes" class="detail-select"></select></div><div class="select-group"><span class="select-label">💇 髮型</span><select id="opt-hair" class="detail-select"></select></div><div class="select-group"><span class="select-label">👑 頭飾</span><select id="opt-headwear" class="detail-select"></select></div><div class="select-group"><span class="select-label">🤲 手持物品</span><select id="opt-held" class="detail-select"></select></div><div class="select-group"><span class="select-label">📍 地點</span><select id="opt-location" class="detail-select"><option value="">(隨機)</option><option value="in a forest">森林</option><option value="at the beach">海邊</option><option value="in a cyberpunk city">未來城市</option><option value="in an ancient temple">古老廟宇</option><option value="in a classroom">教室</option><option value="in outer space">外太空</option><option value="in a library">圖書館</option><option value="in a flower field">浪漫花海</option><option value="on a snowy mountain">雪山之巔</option><option value="on a concert stage">演唱會舞台</option></select></div><div class="select-group"><span class="select-label">🌤️ 天氣/氛圍</span><select id="opt-weather" class="detail-select"><option value="">(隨機)</option><option value="sunny day, bright lighting">陽光燦爛</option><option value="raining, cinematic lighting">下雨電影感</option><option value="starry night">星空夜晚</option><option value="sunset, golden hour">黃昏金光</option><option value="foggy, mysterious">霧氣神秘</option><option value="cherry blossoms falling">櫻花雨</option><option value="northern lights sky">極光</option><option value="rainbow in sky">彩虹</option><option value="thunderstorm background">雷電交加</option></select></div></div></div>
         </div>
 
-        <div class="control-panel" style="border-color: #666;">
-            <div class="panel-title" style="color: #fff;">✍️ 圖文與裝裱</div>
+        <div class="control-panel" style="border-color: #555;">
+            <div class="panel-title" style="color: #eee;">✍️ 大師題字與裝裱</div>
             <div style="display: flex; flex-direction: column;">
-                <textarea id="text-main" rows="2" placeholder="輸入你想寫的話..." class="detail-textarea"></textarea>
+                <div class="select-group" style="margin-bottom: 10px;">
+                    <span class="select-label">📜 選擇名言佳句 (選填)</span>
+                    <select id="quote-select" class="detail-select" onchange="fillQuote()">
+                        <option value="">(自行輸入或選擇...)</option>
+                        <optgroup label="--- 人生哲理 ---">
+                            <option value="歲月靜好，現世安穩。">歲月靜好，現世安穩。</option>
+                            <option value="心之所向，素履以往。">心之所向，素履以往。</option>
+                            <option value="人生如逆旅，我亦是行人。">人生如逆旅，我亦是行人。</option>
+                            <option value="莫聽穿林打葉聲，何妨吟嘯且徐行。">莫聽穿林打葉聲，何妨吟嘯且徐行。</option>
+                        </optgroup>
+                        <optgroup label="--- 藝術唯美 ---">
+                            <option value="你若盛開，蝴蝶自來。">你若盛開，蝴蝶自來。</option>
+                            <option value="眼中若有美，滿目皆是畫。">眼中若有美，滿目皆是畫。</option>
+                            <option value="藝術即是爆炸！">藝術即是爆炸！</option>
+                            <option value="捕捉光影，留住永恆。">捕捉光影，留住永恆。</option>
+                        </optgroup>
+                        <optgroup label="--- 勵志前行 ---">
+                            <option value="不忘初心，方得始終。">不忘初心，方得始終。</option>
+                            <option value="追逐夢想，永不放棄。">追逐夢想，永不放棄。</option>
+                            <option value="最好的作品，永遠是下一個。">最好的作品，永遠是下一個。</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <textarea id="text-main" rows="2" placeholder="在此輸入題字內容..." class="detail-textarea"></textarea>
                 
                 <div class="select-group" style="margin-bottom: 10px;">
                     <span class="select-label">🔠 文字大小</span>
@@ -143,38 +155,38 @@
                     <div class="select-group"><span class="select-label">↕️ 文字位置</span><select id="text-position" class="detail-select"><option value="bottom">置底 (預設)</option><option value="top">置頂</option><option value="center">正中間</option></select></div>
                 </div>
 
-                <div style="border-top: 1px solid #444; padding-top: 10px; margin-top: 10px;">
+                <div style="border-top: 1px solid #444; padding-top: 15px; margin-top: 15px;">
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 20px; margin-right: 5px;">🈴</span>
-                        <input type="text" id="text-signature" placeholder="落款大名" class="detail-input" style="margin-bottom: 0; border-color: #ff5c5c;">
+                        <input type="text" id="text-signature" placeholder="輸入落款大名 (智能縮放)" class="detail-input" style="margin-bottom: 0; border-color: var(--text-accent); color: var(--text-accent); font-weight: bold;">
                     </div>
                     <div class="select-grid">
                         <div class="select-group"><span class="select-label">🔴 印章形狀</span><select id="seal-shape" class="detail-select"><option value="square">1. 正方印</option><option value="rect">2. 長方印</option><option value="circle">3. 圓形印</option><option value="oval">4. 橢圓印</option><option value="rounded">5. 圓角印</option></select></div>
-                        <div class="select-group"><span class="select-label">✒️ 印章字體</span><select id="seal-font" class="detail-select"><option value="standard">1. 標準正楷</option><option value="serif_bold">2. 莊重宋體</option><option value="cursive">3. 飄逸行書</option><option value="heavy">4. 厚重黑體</option><option value="thin">5. 清秀細明</option><option value="old">6. 仿古隸書</option><option value="seal_script">7. 模擬篆刻</option><option value="rough">8. 斑駁古印</option><option value="ink_bleed">9. 墨暈手寫</option><option value="modern">10. 現代設計</option></select></div>
+                        <div class="select-group"><span class="select-label">✒️ 印章字體</span><select id="seal-font" class="detail-select"><option value="standard">1. 標準正楷</option><option value="serif_bold">2. 莊重宋體</option><option value="cursive">3. 飄逸行書</option><option value="heavy">4. 厚重黑體</option><option value="thin">5. 清秀細明</option><option value="old">6. 仿古隸書</option><option value="seal_script" selected>7. 模擬篆刻</option><option value="rough">8. 斑駁古印</option><option value="ink_bleed">9. 墨暈手寫</option><option value="modern">10. 現代設計</option></select></div>
                     </div>
                 </div>
 
-                <div class="select-group" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 10px;">
-                    <span class="select-label">🖼️ V21 頂級邊框</span>
-                    <select id="frame-style" class="detail-select" style="border-color: var(--accent-color); font-weight: bold;">
+                <div class="select-group" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
+                    <span class="select-label">🖼️ V22 博物館級邊框 (立體工藝)</span>
+                    <select id="frame-style" class="detail-select" style="border-color: var(--accent-color); font-weight: bold; color: var(--accent-color);">
                         <option value="none">(不加邊框)</option>
-                        <option value="gold_classic">1. 👑 經典金箔框 (3D)</option>
-                        <option value="silver_antique">2. 🏛️ 古典銀雕框</option>
-                        <option value="wood_walnut">3. 🪵 深胡桃木 (紋理)</option>
-                        <option value="wood_oak">4. 🌿 淺色橡木</option>
-                        <option value="museum_mat">5. 🖼️ 博物館襯紙 (切角)</option>
-                        <option value="gallery_black">6. ⬛ 極簡黑藝廊</option>
-                        <option value="ornate_vintage">7. ⚜️ 歐式繁複 (多層)</option>
-                        <option value="modern_metal">8. ⚙️ 工業風金屬</option>
-                        <option value="rustic">9. 🍂 鄉村風舊木</option>
-                        <option value="neon_cyber">10. 🎆 賽博霓虹框</option>
+                        <option value="gold_classic">1. 👑 經典金箔框 (極致奢華)</option>
+                        <option value="silver_antique">2. 🏛️ 古典銀雕框 (優雅歲月)</option>
+                        <option value="wood_walnut" selected>3. 🪵 深胡桃木 (沉穩大氣)</option>
+                        <option value="wood_oak">4. 🌿 淺色橡木 (清新自然)</option>
+                        <option value="museum_mat">5. 🖼️ 博物館襯紙 (專業典藏)</option>
+                        <option value="gallery_black">6. ⬛ 極簡黑藝廊 (現代藝術)</option>
+                        <option value="ornate_vintage">7. ⚜️ 歐式繁複 (宮廷多層)</option>
+                        <option value="modern_metal">8. ⚙️ 工業風金屬 (冷冽質感)</option>
+                        <option value="rustic">9. 🍂 鄉村風舊木 (粗獷原始)</option>
+                        <option value="neon_cyber">10. 🎆 賽博霓虹框 (未來科幻)</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="ai-only-section">
-            <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:10px;">確認 AI 畫風：</h3>
+            <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:15px; border-top: 1px solid #333; padding-top: 15px;">✨ 選項 A：AI 重繪風格 (點擊生成)</h3>
             <div class="style-grid">
                 <div class="style-card style-real" onclick="generateAI('real')">📸 真人擬真</div>
                 <div class="style-card style-tao" onclick="generateAI('taoist')">🕊️ 白陽聖潔</div>
@@ -187,44 +199,54 @@
             </div>
         </div>
 
-        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認裝裱 (跳過AI)</button>
+        <div class="ai-only-section" style="margin-bottom: 20px;">
+             <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:10px;">✨ 選項 B：保留原圖 (僅裝裱)</h3>
+             <button class="btn-action btn-direct-frame" onclick="finishDirectMode()" style="width:100%; max-width:none;">直接裝裱 (不改變畫風)</button>
+        </div>
+
+        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認裝裱 (使用上傳圖)</button>
+        
         <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:15px;" onclick="location.reload()">⬅️ 返回首頁</button>
     </div>
 
     <div id="stage-3" class="stage" style="justify-content: center;">
-        <h2 id="loading-text">⚡ 處理中...</h2>
-        <div style="width:70%; height:6px; background:#333; margin-top:20px; border-radius:3px;">
-            <div id="progress-bar" style="width:0%; height:100%; background:var(--accent-color); transition:width 0.3s;"></div>
+        <h2 id="loading-text" style="color: var(--accent-color);">⚡ 處理中...</h2>
+        <div style="width:70%; height:6px; background:#333; margin-top:20px; border-radius:3px; overflow: hidden;">
+            <div id="progress-bar" style="width:0%; height:100%; background: linear-gradient(90deg, var(--accent-color), var(--accent-highlight)); transition:width 0.3s;"></div>
         </div>
-        <p id="prompt-debug" style="color:#666; font-size:12px; margin-top:15px; max-width:80%; text-align:center;"></p>
+        <p id="prompt-debug" style="color:#888; font-size:12px; margin-top:15px; max-width:80%; text-align:center;"></p>
     </div>
 
     <div id="stage-4" class="stage">
-        <h2>✨ 您的典藏大作</h2>
-        <div class="viewport" style="background: transparent; box-shadow: none; border: none;">
-            <img id="final-result" src="">
+        <h2 style="color: var(--accent-color);">✨ 您的傳世大作</h2>
+        <div class="viewport" style="background: transparent; box-shadow: none; border: none; min-height: auto;">
+            <img id="final-result" src="" style="box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         </div>
-        <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 5px;">👇 長按圖片儲存 👇</p>
+        <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
         <div style="font-size: 13px; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; width: 100%; text-align: center;">
             分享連結：
             <div id="qrcode-container" style="margin-top: 10px; background: white; padding: 10px; display: inline-block; border-radius: 12px;"></div>
         </div>
-        <button class="btn-action" onclick="location.reload()" style="background:#333; color:white; font-size:16px; margin-top: 20px; max-width:none;">🔄 再玩一次</button>
+        <button class="btn-action" onclick="location.reload()" style="background: #333; color:white; font-size:16px; margin-top: 30px; max-width:none; border: 1px solid #555;">🔄 再玩一次</button>
     </div>
 
     <canvas id="canvas-comp"></canvas>
     <canvas id="canvas-resize"></canvas>
-    <canvas id="canvas"></canvas>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-    const video = document.getElementById('webcam'), canvas = document.getElementById('canvas'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
-    const canvasComp = document.getElementById('canvas-comp');
-    const canvasResize = document.getElementById('canvas-resize');
-    let currentGender = 'girl'; 
-    let isUploadMode = false; 
+    const video = document.getElementById('webcam'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
+    const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
+    let currentGender = 'girl'; let isUploadMode = false; 
+
+    // V22: 名言佳句填充
+    function fillQuote() {
+        const select = document.getElementById('quote-select');
+        const textarea = document.getElementById('text-main');
+        if (select.value) textarea.value = select.value;
+    }
 
     async function initCameraMode() {
         errorMsg.innerText = "";
@@ -233,13 +255,9 @@
             await listCameras();
             stream.getTracks().forEach(track => track.stop());
             setMode(false);
-            const btnContainer = document.getElementById('btn-container');
-            if(btnContainer) btnContainer.style.display = 'none';
+            document.getElementById('btn-container').style.display = 'none';
             document.getElementById('step-selection').style.display = 'block';
-        } catch (err) {
-            console.error(err);
-            errorMsg.innerText = "啟動失敗：請確認瀏覽器已允許相機權限。";
-        }
+        } catch (err) { console.error(err); errorMsg.innerText = "啟動失敗：請確認瀏覽器已允許相機權限。"; }
     }
 
     async function listCameras() {
@@ -247,354 +265,162 @@
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
         cameraList.innerHTML = '';
         videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
+            const option = document.createElement('option'); option.value = device.deviceId;
             let label = device.label || `相機 ${index + 1}`;
-            if (label.toLowerCase().includes('back') || label.includes('後')) label = "📸 後置鏡頭";
-            else if (label.toLowerCase().includes('front') || label.includes('前')) label = "👤 前置自拍";
-            option.text = label;
-            cameraList.appendChild(option);
+            if (label.toLowerCase().includes('back') || label.includes('後')) label = "📸 後置鏡頭"; else if (label.toLowerCase().includes('front') || label.includes('前')) label = "👤 前置自拍";
+            option.text = label; cameraList.appendChild(option);
         });
     }
 
     async function confirmCamera() {
         const deviceId = cameraList.value;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } });
-            video.srcObject = stream;
-            document.getElementById('start-overlay').style.display = 'none';
-            switchStage('stage-1');
-        } catch (err) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                document.getElementById('start-overlay').style.display = 'none';
-                switchStage('stage-1');
-            } catch (fatalErr) { alert("相機啟動失敗"); }
-        }
+        try { const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } }); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (err) { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (fatalErr) { alert("相機啟動失敗"); } }
     }
 
-    const optionsData = {
-        girl: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}], hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}] },
-        boy: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}], hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}] }
-    };
-
+    const optionsData = { girl: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}], hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}] }, boy: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}], hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}] } };
     function updateOptions(gender) { const data = optionsData[gender]; const populate = (id, items) => { const select = document.getElementById(id); select.innerHTML = ""; items.forEach(item => { const opt = document.createElement("option"); opt.value = item.val; opt.innerText = item.txt; select.appendChild(opt); }); }; populate('opt-clothes', data.clothes); populate('opt-hair', data.hair); populate('opt-headwear', data.headwear); populate('opt-held', data.held); }
     function switchGender(g) { currentGender = g; document.getElementById('btn-boy').classList.toggle('selected', g==='boy'); document.getElementById('btn-girl').classList.toggle('selected', g==='girl'); updateOptions(g); }
     window.onload = () => { updateOptions('girl'); };
 
     function setMode(upload) { isUploadMode = upload; const stage2 = document.getElementById('stage-2'); const uploadBtn = document.getElementById('btn-upload-finish'); if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } }
     function triggerUpload() { document.getElementById('file-input').click(); }
-    document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const MAX_SIZE = 1024; let w = img.width; let h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvasResize.width = w; canvasResize.height = h; const ctx = canvasResize.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); previewImg.src = canvasResize.toDataURL('image/jpeg', 0.9); setMode(true); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2'); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
-    function finishUploadMode() { composeFinalImage(previewImg.src, "照片裝裱中..."); }
-    function capturePhoto() { canvas.width = video.videoWidth; canvas.height = video.videoHeight; const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, canvas.width, canvas.height); previewImg.src = canvas.toDataURL('image/png'); setMode(false); switchStage('stage-2'); }
-
-    function composeFinalImage(sourceImageUrl, loadingMsg) {
-        switchStage('stage-3'); 
-        document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中...";
-        document.getElementById('prompt-debug').innerText = ""; 
-        simulateProgress();
-
-        const rawText = document.getElementById('text-main').value;
-        const textStyle = document.getElementById('text-style').value;
-        const signature = document.getElementById('text-signature').value;
-        const position = document.getElementById('text-position').value;
-        const frameStyle = document.getElementById('frame-style').value;
-        const textSizeVal = document.getElementById('text-size').value; 
-        const sealShape = document.getElementById('seal-shape').value; 
-        const sealFont = document.getElementById('seal-font').value; 
-
-        const baseImg = new Image();
-        baseImg.crossOrigin = "anonymous"; 
-        baseImg.onload = () => {
-            let frameThickness = 0; let matThickness = 0;
-            let totalBorder = 0;
-            if (frameStyle !== 'none') {
-                // V21: 根據畫框風格設定更真實的厚度比例
-                if(frameStyle.includes('gold') || frameStyle.includes('vintage')) frameThickness = baseImg.width * 0.08;
-                else frameThickness = baseImg.width * 0.05;
-                
-                if (frameStyle === 'museum_mat') matThickness = baseImg.width * 0.12; // 博物館級需要很寬的襯紙
-                else if (frameStyle !== 'none') matThickness = 0; 
-                
-                // 部分畫框有內襯
-                if(frameStyle === 'gold_classic' || frameStyle === 'silver_antique') matThickness = baseImg.width * 0.02;
-            }
-            totalBorder = Math.floor(frameThickness + matThickness);
-
-            canvasComp.width = baseImg.width + (totalBorder * 2);
-            canvasComp.height = baseImg.height + (totalBorder * 2);
-            const ctx = canvasComp.getContext('2d');
-            const cw = canvasComp.width; const ch = canvasComp.height;
-
-            if (frameStyle !== 'none') { applyFrameDrawing(ctx, frameStyle, cw, ch, Math.floor(frameThickness), Math.floor(matThickness)); }
-
-            const contentX = totalBorder; const contentY = totalBorder;
-            const contentW = baseImg.width; const contentH = baseImg.height;
-
-            ctx.drawImage(baseImg, contentX, contentY);
-
-            ctx.save(); ctx.beginPath(); ctx.rect(contentX, contentY, contentW, contentH); ctx.clip();
-
-            if (rawText && textStyle !== 'none') {
-                const lines = rawText.split('\n');
-                const fontSize = Math.floor(contentW * (textSizeVal / 500)); 
-                applyTextStyle(ctx, textStyle, fontSize);
-                ctx.textAlign = 'center';
-                const lineHeight = fontSize * 1.3;
-                let startY;
-                if (position === 'top') startY = contentY + fontSize * 2;
-                else if (position === 'center') startY = contentY + (contentH / 2) - ((lines.length * lineHeight) / 2);
-                else startY = contentY + contentH - (lines.length * lineHeight) - fontSize;
-
-                lines.forEach((line, i) => {
-                    let y = startY + (i * lineHeight);
-                    ctx.fillText(line, contentX + contentW / 2, y);
-                    if (['comic', 'neon', 'stone'].includes(textStyle)) { ctx.strokeText(line, contentX + contentW / 2, y); }
-                });
-            }
-            if (signature) { drawRealSeal(ctx, signature, sealShape, sealFont, contentX + contentW, contentY + contentH); }
-            ctx.restore();
-
-            if (frameStyle !== 'none' && frameStyle !== 'neon_cyber') { drawInnerShadow(ctx, contentX, contentY, contentW, contentH); }
-
-            finalImg.src = canvasComp.toDataURL('image/png');
-            document.getElementById("qrcode-container").innerHTML = ""; 
-            new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); 
-            switchStage('stage-4');
-        };
-        baseImg.onerror = () => { alert("圖片載入失敗"); location.reload(); };
-        baseImg.src = sourceImageUrl;
-    }
-
-    // V21: 頂級工藝邊框繪製 (Procedural textures & bevels)
-    function applyFrameDrawing(ctx, style, w, h, ft, mt) {
-        const total = ft + mt;
-        // 1. 背景層 (如果有襯紙)
-        if (mt > 0) {
-            // 博物館紙紋理
-            ctx.fillStyle = '#fdfdfd'; 
-            ctx.fillRect(0, 0, w, h);
-            // 加入噪點紋理
-            drawNoise(ctx, 0, 0, w, h, 0.03);
-            
-            // 襯紙內切角 (Bevel Cut)
-            ctx.fillStyle = '#e0e0e0'; // 陰影
-            ctx.fillRect(ft, ft, w - ft*2, h - ft*2);
-            ctx.fillStyle = '#fff'; // 亮面
-            ctx.fillRect(ft+2, ft+2, w - ft*2 - 4, h - ft*2 - 4);
-        }
-
-        // 2. 外框層
-        if (ft > 0) {
-            // 定義外框區域
-            ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); 
-            ctx.fillStyle = '#000'; ctx.fill('evenodd'); // 清空區域
-
-            // 根據風格繪製材質
-            ctx.save();
-            ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.clip('evenodd');
-
-            if (style === 'gold_classic') {
-                // 金箔質感
-                let grad = ctx.createLinearGradient(0, 0, w, h);
-                grad.addColorStop(0, '#bf953f'); grad.addColorStop(0.25, '#fcf6ba'); grad.addColorStop(0.5, '#b38728'); grad.addColorStop(0.75, '#fbf5b7'); grad.addColorStop(1, '#aa771c');
-                ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
-                drawNoise(ctx, 0,0,w,h, 0.05); // 金屬顆粒
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.6)', 'rgba(60,40,0,0.6)'); // 外斜角
-            } 
-            else if (style === 'wood_walnut') {
-                // 深胡桃木
-                ctx.fillStyle = '#3e2723'; ctx.fillRect(0,0,w,h);
-                drawWoodGrain(ctx, w, h, '#281815', 0.3);
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.1)', 'rgba(0,0,0,0.6)');
-            }
-            else if (style === 'wood_oak') {
-                // 淺橡木
-                ctx.fillStyle = '#d7c49e'; ctx.fillRect(0,0,w,h);
-                drawWoodGrain(ctx, w, h, '#bfa37a', 0.2);
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.3)', 'rgba(100,80,50,0.4)');
-            }
-            else if (style === 'ornate_vintage') {
-                // 繁複框 (多層)
-                let grad = ctx.createLinearGradient(0, 0, w, 0);
-                grad.addColorStop(0, '#222'); grad.addColorStop(0.5, '#444'); grad.addColorStop(1, '#222');
-                ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
-                // 內金線
-                ctx.strokeStyle = '#d4af37'; ctx.lineWidth = ft * 0.2;
-                ctx.strokeRect(ft/2, ft/2, w-ft, h-ft);
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.8)');
-            }
-            else if (style === 'neon_cyber') {
-                ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
-                ctx.shadowColor = '#00eaff'; ctx.shadowBlur = 30; 
-                ctx.strokeStyle = '#ff00de'; ctx.lineWidth = 4;
-                ctx.strokeRect(ft, ft, w - ft*2, h - ft*2); // 內發光
-                ctx.shadowBlur = 0;
-            }
-            else if (style === 'gallery_black') {
-                ctx.fillStyle = '#111'; ctx.fillRect(0,0,w,h);
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.15)', 'rgba(0,0,0,0.8)'); // 極簡光影
-            }
-            else {
-                // 預設/其他
-                ctx.fillStyle = '#333'; ctx.fillRect(0,0,w,h);
-                drawBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.5)');
-            }
-            ctx.restore();
-        }
-    }
-
-    // V21 輔助：繪製斜角立體感 (Trapazoid bevels)
-    function drawBevel(ctx, x, y, w, h, thick, lightColor, shadowColor) {
-        // Top
-        ctx.fillStyle = lightColor;
-        ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+w,y); ctx.lineTo(x+w-thick, y+thick); ctx.lineTo(x+thick, y+thick); ctx.fill();
-        // Left
-        ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+thick,y+thick); ctx.lineTo(x+thick, y+h-thick); ctx.lineTo(x, y+h); ctx.fill();
-        // Right
-        ctx.fillStyle = shadowColor;
-        ctx.beginPath(); ctx.moveTo(x+w,y); ctx.lineTo(x+w,y+h); ctx.lineTo(x+w-thick, y+h-thick); ctx.lineTo(x+w-thick, y+thick); ctx.fill();
-        // Bottom
-        ctx.beginPath(); ctx.moveTo(x,y+h); ctx.lineTo(x+thick,y+h-thick); ctx.lineTo(x+w-thick, y+h-thick); ctx.lineTo(x+w, y+h); ctx.fill();
-    }
-
-    // V21 輔助：噪點紋理
-    function drawNoise(ctx, x, y, w, h, alpha) {
-        const iData = ctx.getImageData(x, y, w, h);
-        for (let i = 0; i < iData.data.length; i += 4) {
-            const noise = (Math.random() - 0.5) * 50 * alpha;
-            iData.data[i] += noise; iData.data[i+1] += noise; iData.data[i+2] += noise;
-        }
-        ctx.putImageData(iData, x, y);
-    }
-
-    // V21 輔助：木紋生成
-    function drawWoodGrain(ctx, w, h, color, intensity) {
-        ctx.save();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = intensity;
-        for(let i=0; i<w; i+=5) {
-            ctx.beginPath();
-            ctx.moveTo(i, 0);
-            // 畫出波浪線
-            for(let j=0; j<h; j+=20) {
-                ctx.lineTo(i + Math.sin(j*0.05)*10 + (Math.random()-0.5)*2, j);
-            }
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-
-    function drawInnerShadow(ctx, x, y, w, h) {
-        ctx.shadowColor = "rgba(0,0,0,0.7)"; ctx.shadowBlur = 30; ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
-        ctx.strokeStyle = "rgba(0,0,0,0.1)"; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h); ctx.shadowBlur = 0;
-    }
-
-    function applyTextStyle(ctx, style, fontSize) {
-        ctx.font = `bold ${fontSize}px "Microsoft JhengHei", sans-serif`;
-        ctx.lineWidth = fontSize / 10; ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
-        switch(style) {
-            case 'calligraphy': ctx.fillStyle = 'white'; ctx.font = `bold ${fontSize*1.2}px "Kaiti SC", STKaiti, serif`; ctx.shadowColor="black"; ctx.shadowBlur=10; break;
-            case 'neon': ctx.fillStyle = '#00eaff'; ctx.strokeStyle = '#ff00de'; ctx.shadowColor = '#00eaff'; ctx.shadowBlur = 20; ctx.lineWidth = 5; break;
-            case 'comic': ctx.fillStyle = '#ffd700'; ctx.strokeStyle = 'black'; ctx.lineWidth = 8; ctx.font = `900 ${fontSize*1.1}px "Arial Black", sans-serif`; break;
-            case 'cute': ctx.fillStyle = '#ff99cc'; ctx.font = `bold ${fontSize}px "Comic Sans MS", cursive`; ctx.shadowColor="white"; ctx.shadowBlur=5; break;
-            case 'elegant': ctx.fillStyle = '#d4af37'; ctx.font = `italic bold ${fontSize}px serif`; ctx.shadowColor="#333"; ctx.shadowBlur=5; break;
-            case 'typewriter': ctx.fillStyle = '#00ff00'; ctx.font = `${fontSize}px monospace`; ctx.shadowColor="black"; ctx.shadowBlur=2; break;
-            case 'graffiti': ctx.fillStyle = 'white'; ctx.strokeStyle = '#ff3300'; ctx.lineWidth = 5; ctx.font = `900 ${fontSize*1.2}px sans-serif`; break;
-            case 'headline': ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 4; ctx.font = `900 ${fontSize*1.1}px impact, sans-serif`; break;
-            case 'stone': ctx.fillStyle = '#888888'; ctx.strokeStyle = '#333333'; ctx.lineWidth = 3; ctx.shadowColor="black"; ctx.shadowBlur=2; ctx.shadowOffsetX=2; ctx.shadowOffsetY=2; break;
-            case 'ink': ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.font = `bold ${fontSize}px "Kaiti SC", STKaiti, serif`; ctx.shadowColor="rgba(255,255,255,0.5)"; ctx.shadowBlur=5; break;
-        }
-    }
-
-    function drawRealSeal(ctx, name, shape, fontStyle, rightX, bottomY) {
-        const sealSize = Math.floor((rightX * 0.1)); 
-        const margin = 40;
-        const x = rightX - sealSize - margin;
-        const y = bottomY - sealSize - margin;
-        const center = sealSize / 2;
-
-        ctx.save();
-        ctx.translate(x, y);
-
-        ctx.fillStyle = "#b30000"; 
-        ctx.beginPath();
-        if (shape === 'square') { ctx.rect(0, 0, sealSize, sealSize); }
-        else if (shape === 'rect') { ctx.rect(0, sealSize*0.2, sealSize, sealSize*0.6); }
-        else if (shape === 'circle') { ctx.arc(center, center, center, 0, Math.PI*2); }
-        else if (shape === 'oval') { ctx.ellipse(center, center, center, center*0.6, 0, 0, Math.PI*2); }
-        else if (shape === 'rounded') { 
-            const r = 10; ctx.moveTo(r,0); ctx.lineTo(sealSize-r,0); ctx.quadraticCurveTo(sealSize,0,sealSize,r); 
-            ctx.lineTo(sealSize,sealSize-r); ctx.quadraticCurveTo(sealSize,sealSize,sealSize-r,sealSize); 
-            ctx.lineTo(r,sealSize); ctx.quadraticCurveTo(0,sealSize,0,sealSize-r); 
-            ctx.lineTo(0,r); ctx.quadraticCurveTo(0,0,r,0); 
-        }
-        ctx.fill();
-
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
-        for(let i=0; i<50; i++) ctx.fillRect(Math.random()*sealSize, Math.random()*sealSize, 2, 2);
-        ctx.globalCompositeOperation = 'source-over';
-
-        let fontName = "sans-serif"; let fontWeight = "bold"; let fontScale = 0.6; 
-        switch(fontStyle) {
-            case 'standard': fontName = '"Microsoft JhengHei", sans-serif'; break;
-            case 'serif_bold': fontName = '"Songti SC", serif'; fontWeight="900"; break;
-            case 'cursive': fontName = '"Kaiti SC", cursive'; fontWeight="normal"; break;
-            case 'heavy': fontName = '"Arial Black", sans-serif'; break;
-            case 'thin': fontName = '"MingLiU", serif'; fontWeight="100"; break;
-            case 'old': fontName = '"LiSu", "Kaiti SC", serif'; break;
-            case 'seal_script': fontName = '"SimSun", serif'; fontScale=0.7; break;
-            case 'rough': fontName = '"Courier New", monospace'; break;
-            case 'ink_bleed': fontName = '"Kaiti SC", serif'; ctx.shadowColor="#b30000"; ctx.shadowBlur=2; break;
-            case 'modern': fontName = 'Arial, sans-serif'; fontWeight="100"; fontScale=0.5; break;
-        }
-
-        ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        let displayTxt = name; let fontSize = sealSize * fontScale;
-        
-        if (name.length <= 2) {
-            ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; ctx.fillText(name, center, center);
-        } else {
-            fontSize = sealSize * (fontScale * 0.6);
-            ctx.font = `${fontWeight} ${fontSize}px ${fontName}`;
-            if (shape === 'rect' || shape === 'oval') { ctx.fillText(name, center, center); } 
-            else {
-                const mid = Math.ceil(name.length / 2);
-                const line1 = name.substring(0, mid);
-                const line2 = name.substring(mid);
-                ctx.fillText(line1, center + fontSize*0.3, center - fontSize*0.5); 
-                ctx.fillText(line2, center - fontSize*0.3, center + fontSize*0.5);
-            }
-        }
-        ctx.restore();
-    }
-
-    function generateAI(styleKey) {
-        if (isUploadMode) return;
-        composeFinalImage(null, "⚡ AI 繪圖與裝裱中..."); 
-        document.getElementById('prompt-debug').innerText = "AI 指令運算中...";
-
-        let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female";
-        let detailPrompt = getDetails(); 
-        let fullPrompt = "";
-        if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`;
-        else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`;
-        else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`;
-        else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`;
-        else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`;
-        else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`;
-        else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`;
-        else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`;
-        
-        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`;
-        
-        setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中..."); }, 100);
-    }
+    document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const MAX_SIZE = 1200; let w = img.width; let h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvasResize.width = w; canvasResize.height = h; const ctx = canvasResize.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95); setMode(true); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2'); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
-    function simulateProgress() { const bar = document.getElementById('progress-bar'); let w = 0; const int = setInterval(() => { if(w>=90) clearInterval(int); w+=10; bar.style.width=w+'%'; }, 300); }
+    // V22 修復：上傳模式完成
+    function finishUploadMode() { composeFinalImage(previewImg.src, "⚡ 正在為您的照片裝裱..."); }
+    // V22 修復：相機模式直接裝裱
+    function finishDirectMode() { composeFinalImage(previewImg.src, "⚡ 正在為照片裝裱 (原圖)..."); }
+
+    function capturePhoto() { canvasResize.width = video.videoWidth; canvasResize.height = video.videoHeight; const ctx = canvasResize.getContext('2d'); ctx.translate(canvasResize.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, canvasResize.width, canvasResize.height); previewImg.src = canvasResize.toDataURL('image/png'); setMode(false); switchStage('stage-2'); }
+
+    function getDetails() { const ids = ['opt-clothes', 'opt-hair', 'opt-headwear', 'opt-held', 'opt-location', 'opt-weather']; let details = []; ids.forEach(id => { const val = document.getElementById(id).value; if(val) details.push(val); }); return details.join(", "); }
+    function generateAI(styleKey) { if (isUploadMode) return; composeFinalImage(null, "⚡ AI 繪圖大師揮毫中..."); document.getElementById('prompt-debug').innerText = "正在構思畫面細節..."; let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; let detailPrompt = getDetails(); let fullPrompt = ""; if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`; else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`; else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`; else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`; else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`; else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`; else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`; else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`; const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`; setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖完成，正在裝裱..."); }, 100); }
+
+    // --- V22 核心合成引擎 ---
+    function composeFinalImage(sourceImageUrl, loadingMsg) {
+        switchStage('stage-3'); document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; document.getElementById('prompt-debug').innerText = ""; simulateProgress();
+        const rawText = document.getElementById('text-main').value; const textStyle = document.getElementById('text-style').value; const signature = document.getElementById('text-signature').value; const position = document.getElementById('text-position').value; const frameStyle = document.getElementById('frame-style').value; const textSizeVal = document.getElementById('text-size').value; const sealShape = document.getElementById('seal-shape').value; const sealFont = document.getElementById('seal-font').value;
+        const baseImg = new Image(); baseImg.crossOrigin = "anonymous"; 
+        baseImg.onload = () => {
+            // V22: 更精細的邊框厚度計算
+            let frameThickness = 0; let matThickness = 0;
+            const baseDim = Math.min(baseImg.width, baseImg.height);
+            if (frameStyle !== 'none') {
+                if(frameStyle.includes('gold') || frameStyle.includes('vintage') || frameStyle.includes('walnut')) frameThickness = baseDim * 0.06; else frameThickness = baseDim * 0.04;
+                if (frameStyle === 'museum_mat') matThickness = baseDim * 0.12; else if (frameStyle === 'gold_classic' || frameStyle === 'silver_antique') matThickness = baseDim * 0.025;
+            }
+            const ft = Math.floor(frameThickness); const mt = Math.floor(matThickness); const totalBorder = ft + mt;
+            canvasComp.width = baseImg.width + (totalBorder * 2); canvasComp.height = baseImg.height + (totalBorder * 2);
+            const ctx = canvasComp.getContext('2d'); const cw = canvasComp.width; const ch = canvasComp.height;
+
+            // 1. 繪製 V22 高級邊框
+            if (frameStyle !== 'none') { applyAdvancedFrame(ctx, frameStyle, cw, ch, ft, mt); }
+
+            // 2. 繪製內容
+            const contentX = totalBorder; const contentY = totalBorder; const contentW = baseImg.width; const contentH = baseImg.height;
+            ctx.drawImage(baseImg, contentX, contentY);
+            // V22: 畫作內陰影 (更深邃)
+            if (frameStyle !== 'none' && frameStyle !== 'neon_cyber') { ctx.shadowColor = "rgba(0,0,0,0.75)"; ctx.shadowBlur = ft*0.8; ctx.shadowOffsetX = ft*0.2; ctx.shadowOffsetY = ft*0.2; ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth = 2; ctx.strokeRect(contentX, contentY, contentW, contentH); ctx.shadowBlur = 0; }
+
+            // 3. 繪製文字與印章
+            ctx.save(); ctx.beginPath(); ctx.rect(contentX, contentY, contentW, contentH); ctx.clip();
+            if (rawText && textStyle !== 'none') {
+                const lines = rawText.split('\n'); const fontSize = Math.floor(contentW * (textSizeVal / 500)); applyTextStyle(ctx, textStyle, fontSize); ctx.textAlign = 'center'; const lineHeight = fontSize * 1.3; let startY;
+                if (position === 'top') startY = contentY + fontSize * 2; else if (position === 'center') startY = contentY + (contentH / 2) - ((lines.length * lineHeight) / 2); else startY = contentY + contentH - (lines.length * lineHeight) - fontSize;
+                lines.forEach((line, i) => { let y = startY + (i * lineHeight); ctx.fillText(line, contentX + contentW / 2, y); if (['comic', 'neon', 'stone'].includes(textStyle)) { ctx.strokeText(line, contentX + contentW / 2, y); } });
+            }
+            if (signature) { drawSmartSeal(ctx, signature, sealShape, sealFont, contentX + contentW, contentY + contentH, contentW); }
+            ctx.restore();
+
+            finalImg.src = canvasComp.toDataURL('image/png'); document.getElementById("qrcode-container").innerHTML = ""; new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); switchStage('stage-4');
+        };
+        baseImg.onerror = () => { alert("圖片載入失敗，請重試。"); location.reload(); }; baseImg.src = sourceImageUrl;
+    }
+
+    // V22: 博物館級邊框繪製引擎 (Procedural textures & Deep Bevels)
+    function applyAdvancedFrame(ctx, style, w, h, ft, mt) {
+        const total = ft + mt;
+        // 襯紙層
+        if (mt > 0) {
+            ctx.fillStyle = '#fdfdfd'; ctx.fillRect(0, 0, w, h); drawNoise(ctx, 0, 0, w, h, 0.04); // 紙張紋理
+            // 襯紙內斜角 (Bevel Cut)
+            drawSolidBevel(ctx, ft, ft, w-ft*2, h-ft*2, Math.max(2, mt*0.1), '#ffffff', '#d9d9d9');
+        }
+        // 外框層
+        if (ft > 0) {
+            ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.clip('evenodd');
+            if (style === 'gold_classic') {
+                let grad = ctx.createLinearGradient(0, 0, w, h); grad.addColorStop(0, '#e6c26e'); grad.addColorStop(0.3, '#bf953f'); grad.addColorStop(0.5, '#fcf6ba'); grad.addColorStop(0.7, '#b38728'); grad.addColorStop(1, '#aa771c'); ctx.fillStyle = grad; ctx.fillRect(0,0,w,h); drawNoise(ctx, 0,0,w,h, 0.06);
+                drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.7)', 'rgba(80,60,20,0.7)');
+            } else if (style === 'wood_walnut') {
+                ctx.fillStyle = '#4a332a'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#2e1e19', 0.4); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.15)', 'rgba(0,0,0,0.6)');
+            } else if (style === 'ornate_vintage') {
+                ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#221100', 0.3);
+                ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=ft*0.3; ctx.strokeStyle = '#d4af37'; ctx.lineWidth = ft * 0.15; ctx.strokeRect(ft*0.3, ft*0.3, w-ft*0.6, h-ft*0.6); ctx.shadowBlur=0; // 金線
+                drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,240,200,0.25)', 'rgba(0,0,0,0.85)');
+            } else if (style === 'neon_cyber') {
+                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h); ctx.shadowColor = '#00eaff'; ctx.shadowBlur = ft; ctx.strokeStyle = '#ff00de'; ctx.lineWidth = ft*0.1; ctx.strokeRect(ft, ft, w - ft*2, h - ft*2); ctx.shadowBlur = 0;
+            } else if (style === 'gallery_black') {
+                ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.03); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.8)');
+            } else {
+                ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.05); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.4)', 'rgba(0,0,0,0.5)');
+            }
+            ctx.restore();
+        }
+    }
+
+    // V22: 智能印章引擎 (自動縮放+擬真質感)
+    function drawSmartSeal(ctx, name, shape, fontStyle, rightX, bottomY, canvasW) {
+        const baseSize = Math.floor(canvasW * 0.12); // 基礎大小
+        const margin = baseSize * 0.3;
+        const x = rightX - baseSize - margin; const y = bottomY - baseSize - margin; const center = baseSize / 2;
+
+        ctx.save(); ctx.translate(x, y);
+        // 印泥質感：邊緣模糊 + 內部雜點
+        ctx.shadowColor = "#990000"; ctx.shadowBlur = 4; ctx.fillStyle = "#c21f1f"; 
+        ctx.beginPath();
+        if (shape === 'square') ctx.rect(0, 0, baseSize, baseSize); else if (shape === 'rect') ctx.rect(0, baseSize*0.2, baseSize, baseSize*0.6); else if (shape === 'circle') ctx.arc(center, center, center, 0, Math.PI*2); else if (shape === 'oval') ctx.ellipse(center, center, center, center*0.6, 0, 0, Math.PI*2); else if (shape === 'rounded') { const r = baseSize*0.2; ctx.roundRect(0,0,baseSize,baseSize,r); }
+        ctx.fill(); ctx.shadowBlur = 0;
+        drawNoise(ctx, 0, 0, baseSize, baseSize, 0.15); // 印泥雜點
+
+        // 字體選擇
+        let fontName = "sans-serif"; let fontWeight = "bold";
+        switch(fontStyle) {
+            case 'standard': fontName = '"Microsoft JhengHei", sans-serif'; break; case 'serif_bold': fontName = '"Songti SC", serif'; fontWeight="900"; break; case 'cursive': fontName = '"Kaiti SC", cursive'; fontWeight="normal"; break; case 'heavy': fontName = '"Arial Black", sans-serif'; break; case 'thin': fontName = '"MingLiU", serif'; fontWeight="100"; break; case 'old': fontName = '"LiSu", "Kaiti SC", serif'; break; case 'seal_script': fontName = '"SimSun", serif'; break; case 'rough': fontName = '"Courier New", monospace'; break; case 'ink_bleed': fontName = '"Kaiti SC", serif'; ctx.shadowColor="#e0e0e0"; ctx.shadowBlur=3; break; case 'modern': fontName = 'Arial, sans-serif'; fontWeight="100"; break;
+        }
+
+        // 智能文字縮放核心
+        ctx.fillStyle = "#fdfdfd"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        let fontSize = baseSize * 0.8;
+        ctx.font = `${fontWeight} ${fontSize}px ${fontName}`;
+        
+        if (name.length <= 2 || shape === 'rect' || shape === 'oval') {
+            // 單行模式：自動縮小直到放入
+            const maxWidth = (shape === 'rect' || shape === 'oval') ? baseSize * 0.9 : baseSize * 0.8;
+            while (ctx.measureText(name).width > maxWidth && fontSize > 10) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; }
+            ctx.fillText(name, center, center);
+        } else {
+            // 雙行模式 (適用於方/圓印的多字)
+            fontSize = baseSize * 0.4; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`;
+            const mid = Math.ceil(name.length / 2);
+            const line1 = name.substring(0, mid); const line2 = name.substring(mid);
+            // 再次檢查每行寬度
+            const maxLineW = baseSize * 0.75;
+            while ((ctx.measureText(line1).width > maxLineW || ctx.measureText(line2).width > maxLineW) && fontSize > 8) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; }
+            ctx.fillText(line1, center + fontSize*0.1, center - fontSize*0.55); // 右上
+            ctx.fillText(line2, center - fontSize*0.1, center + fontSize*0.55); // 左下
+        }
+        ctx.restore();
+    }
+
+    // V22: 高級繪圖輔助函式
+    function drawDeepBevel(ctx,x,y,w,h,t,lc,sc){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w-t,y+t);ctx.lineTo(x+t,y+t);ctx.fillStyle=lc;ctx.fill();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+t,y+t);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x,y+h);ctx.fillStyle=lc;ctx.fill();ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w-t,y+t);ctx.fillStyle=sc;ctx.fill();ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w,y+h);ctx.fillStyle=sc;ctx.fill();}
+    function drawSolidBevel(ctx,x,y,w,h,t,c1,c2){ctx.fillStyle=c1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w-t,y+t);ctx.lineTo(x+t,y+t);ctx.fill();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+t,y+t);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x,y+h);ctx.fill();ctx.fillStyle=c2;ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w-t,y+t);ctx.fill();ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w,y+h);ctx.fill();}
+    function drawNoise(ctx,x,y,w,h,a){const id=ctx.getImageData(x,y,w,h);for(let i=0;i<id.data.length;i+=4){const n=(Math.random()-0.5)*255*a;id.data[i]+=n;id.data[i+1]+=n;id.data[i+2]+=n;}ctx.putImageData(id,x,y);}
+    function drawWoodTexture(ctx,w,h,c,a){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.globalAlpha=a;for(let i=0;i<w;i+=3+Math.random()*5){ctx.beginPath();ctx.moveTo(i,0);for(let j=0;j<h;j+=20){ctx.lineTo(i+Math.sin(j*0.02+i)*8+(Math.random()-0.5)*3,j);}ctx.stroke();}ctx.restore();}
+    function applyTextStyle(ctx,s,fs){ctx.font=`bold ${fs}px "Microsoft JhengHei",sans-serif`;ctx.lineWidth=fs/12;ctx.shadowBlur=0;ctx.shadowColor='transparent';switch(s){case 'calligraphy':ctx.fillStyle='white';ctx.font=`bold ${fs*1.1}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(0,0,0,0.8)";ctx.shadowBlur=8;break;case 'neon':ctx.fillStyle='#00eaff';ctx.strokeStyle='#ff00de';ctx.shadowColor='#00eaff';ctx.shadowBlur=15;ctx.lineWidth=3;break;case 'comic':ctx.fillStyle='#ffd700';ctx.strokeStyle='black';ctx.lineWidth=6;ctx.font=`900 ${fs}px "Arial Black",sans-serif`;break;case 'cute':ctx.fillStyle='#ff99cc';ctx.font=`bold ${fs}px "Comic Sans MS",cursive`;ctx.shadowColor="white";ctx.shadowBlur=4;break;case 'elegant':ctx.fillStyle='#d4af37';ctx.font=`italic bold ${fs}px serif`;ctx.shadowColor="#222";ctx.shadowBlur=4;break;case 'typewriter':ctx.fillStyle='#00ff00';ctx.font=`${fs}px monospace`;ctx.shadowColor="black";ctx.shadowBlur=2;break;case 'graffiti':ctx.fillStyle='white';ctx.strokeStyle='#ff3300';ctx.lineWidth=4;ctx.font=`900 ${fs*1.1}px sans-serif`;break;case 'headline':ctx.fillStyle='white';ctx.strokeStyle='black';ctx.lineWidth=3;ctx.font=`900 ${fs}px impact,sans-serif`;break;case 'stone':ctx.fillStyle='#888';ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.shadowColor="black";ctx.shadowBlur=2;ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;break;case 'ink':ctx.fillStyle='rgba(0,0,0,0.8)';ctx.font=`bold ${fs}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(255,255,255,0.3)";ctx.shadowBlur=4;break;}}
+
+    function simulateProgress() { const bar = document.getElementById('progress-bar'); let w = 0; const int = setInterval(() => { if(w>=95) clearInterval(int); w+=Math.random()*15; bar.style.width=Math.min(w,98)+'%'; }, 400); }
     function switchStage(id) { document.querySelectorAll('.stage').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); }); const target = document.getElementById(id); target.style.display = 'flex'; setTimeout(()=>target.classList.add('active'), 10); }
 </script>
 </body>
