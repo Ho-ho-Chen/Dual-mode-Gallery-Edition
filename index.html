@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Mirror AI - V18.0 Dual Mode</title>
+    <title>Live Mirror AI - V19.0 Stable Fix</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
-        :root { --bg-color: #000000; --panel-bg: #1a1a1a; --accent-color: #d4af37; /* 金色 */ --text-accent: #ff3366; --text-primary: #ffffff; }
+        :root { --bg-color: #000000; --panel-bg: #1a1a1a; --accent-color: #d4af37; --text-accent: #ff3366; --text-primary: #ffffff; }
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
         #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; }
@@ -18,14 +18,14 @@
         .active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .viewport { width: 100%; aspect-ratio: 3/4; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        video, img { width: 100%; height: 100%; object-fit: contain; } 
+        /* V19 修正: 移除固定 aspect-ratio，改為自適應 */
+        .viewport { width: 100%; min-height: 300px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; }
+        video, img { width: 100%; height: 100%; object-fit: contain; max-height: 60vh; } 
         .mirror { transform: scaleX(-1); }
 
         .control-panel { width: 100%; background: #252525; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #444; transition: all 0.3s; }
         .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         
-        /* V18: 用於隱藏 AI 區域的 class */
         .ai-only-section { display: block; }
         .upload-mode .ai-only-section { display: none !important; }
 
@@ -41,7 +41,6 @@
 
         #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         
-        /* V18 新增按鈕樣式 */
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
         .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: var(--accent-color); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .btn-upload { background: #444; color: white; border: 1px solid #666; box-shadow: none; }
@@ -59,8 +58,8 @@
         .gender-option { flex: 1; text-align: center; padding: 10px; background: #333; border-radius: 10px; border: 1px solid #555; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
         .gender-option.selected { background: var(--accent-color); color: #000; }
         
-        #canvas { display: none; }
-        /* V18 隱藏的檔案輸入框 */
+        /* V19 修正: 強制隱藏所有 canvas，避免重疊 */
+        canvas { display: none !important; }
         #file-input { display: none; }
     </style>
 </head>
@@ -68,12 +67,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V18.0 雙模版</span>
+        Live Mirror AI <span class="version-tag">V19.0 修正版</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:20px;">請選擇模式</p>
+        <p style="color:#aaa; margin-bottom:20px;">V19.0 穩定修正版</p>
         
         <div class="btn-group">
             <button class="btn-action" onclick="firstStartCamera()">📸 啟動相機<br>(AI 生成)</button>
@@ -91,7 +90,7 @@
     <input type="file" id="file-input" accept="image/*">
 
     <div id="stage-1" class="stage">
-        <div class="viewport">
+        <div class="viewport" style="aspect-ratio: 3/4;">
             <video id="webcam" playsinline class="mirror" autoplay></video>
         </div>
         <button class="btn-action" onclick="capturePhoto()">📸 拍照</button>
@@ -99,7 +98,7 @@
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport" style="width: 160px; height: 160px; border-radius: 12px; border: 2px solid var(--accent-color); margin-top: 5px;">
+        <div class="viewport" style="width: 160px; height: 160px; min-height: auto; border-radius: 12px; border: 2px solid var(--accent-color); margin-top: 5px;">
             <img id="preview-img" src="">
         </div>
         
@@ -176,7 +175,7 @@
 
     <div id="stage-4" class="stage">
         <h2>✨ 您的典藏大作</h2>
-        <div class="viewport" style="background: transparent; box-shadow: none;">
+        <div class="viewport" style="background: transparent; box-shadow: none; border: none;">
             <img id="final-result" src="">
         </div>
         <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 5px;">👇 長按圖片儲存 👇</p>
@@ -188,7 +187,8 @@
     </div>
 
     <canvas id="canvas-comp"></canvas>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <canvas id="canvas-resize"></canvas>
+    <canvas id="canvas"></canvas>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -196,8 +196,64 @@
 <script>
     const video = document.getElementById('webcam'), canvas = document.getElementById('canvas'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
     const canvasComp = document.getElementById('canvas-comp');
+    const canvasResize = document.getElementById('canvas-resize'); // V19: 縮圖用
     let currentGender = 'girl'; 
-    let isUploadMode = false; // V18: 模式旗標
+    let isUploadMode = false; 
+
+    // V19 修正: 相機啟動邏輯 (寬鬆模式)
+    async function firstStartCamera() {
+        errorMsg.innerText = "";
+        try {
+            // 1. 先試著直接開，不挑
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            
+            // 2. 成功開啟後，列出清單
+            await listCameras();
+            stream.getTracks().forEach(track => track.stop()); // 關閉測試流
+
+            setMode(false);
+            document.getElementById('step-permission').style.display = 'none';
+            document.getElementById('step-selection').style.display = 'block';
+        } catch (err) {
+            console.error(err);
+            errorMsg.innerText = "啟動失敗：" + err.message + "\n請確認瀏覽器權限。";
+        }
+    }
+
+    async function listCameras() {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        cameraList.innerHTML = '';
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            let label = device.label || `相機 ${index + 1}`;
+            if (label.toLowerCase().includes('back') || label.includes('後')) label = "📸 後置鏡頭";
+            else if (label.toLowerCase().includes('front') || label.includes('前')) label = "👤 前置自拍";
+            option.text = label;
+            cameraList.appendChild(option);
+        });
+    }
+
+    // V19 修正: 寬鬆的切換邏輯
+    async function startSpecificCamera() {
+        const deviceId = cameraList.value;
+        try {
+            // 嘗試開啟指定鏡頭
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } });
+            video.srcObject = stream;
+            document.getElementById('start-overlay').style.display = 'none';
+            switchStage('stage-1');
+        } catch (err) {
+            // 失敗就開預設
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                document.getElementById('start-overlay').style.display = 'none';
+                switchStage('stage-1');
+            } catch (fatalErr) { alert("無法啟動相機，請換個瀏覽器試試。"); }
+        }
+    }
 
     const optionsData = {
         girl: {
@@ -230,7 +286,6 @@
     }
     window.onload = () => { updateOptions('girl'); };
 
-    // --- V18: 模式切換邏輯 ---
     function setMode(upload) {
         isUploadMode = upload;
         const stage2 = document.getElementById('stage-2');
@@ -239,45 +294,61 @@
         if (isUploadMode) {
             stage2.classList.add('upload-mode');
             uploadBtn.style.display = 'flex';
-            previewImg.classList.remove('mirror'); // 上傳照片不鏡像
+            previewImg.classList.remove('mirror');
         } else {
             stage2.classList.remove('upload-mode');
             uploadBtn.style.display = 'none';
-            previewImg.classList.add('mirror'); // 相機照片要鏡像
+            previewImg.classList.add('mirror');
         }
     }
 
-    // --- V18: 上傳功能處理 ---
-    function triggerUpload() {
-        document.getElementById('file-input').click();
-    }
+    function triggerUpload() { document.getElementById('file-input').click(); }
 
+    // V19 修正: 上傳圖片自動縮放 (解決圖片過大問題)
     document.getElementById('file-input').addEventListener('change', function(e) {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                previewImg.src = event.target.result;
-                setMode(true); // 設定為上傳模式
-                document.getElementById('start-overlay').style.display = 'none';
-                switchStage('stage-2');
+                const img = new Image();
+                img.onload = function() {
+                    // 縮放邏輯：最大邊長 1024
+                    const MAX_SIZE = 1024;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                    else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                    
+                    canvasResize.width = w;
+                    canvasResize.height = h;
+                    const ctx = canvasResize.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    
+                    previewImg.src = canvasResize.toDataURL('image/jpeg', 0.9);
+                    setMode(true);
+                    document.getElementById('start-overlay').style.display = 'none';
+                    switchStage('stage-2');
+                }
+                img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         }
     });
 
-    // --- V18: 上傳模式的完成按鈕 ---
-    function finishUploadMode() {
-        // 直接使用預覽圖進行合成，不經過 AI
-        composeFinalImage(previewImg.src, "照片裝裱中...");
+    function finishUploadMode() { composeFinalImage(previewImg.src, "照片裝裱中..."); }
+
+    function capturePhoto() {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        previewImg.src = canvas.toDataURL('image/png'); 
+        setMode(false); 
+        switchStage('stage-2');
     }
 
-
-    // --- V17 核心：藝廊級合成 (共用) ---
-    // V18 修改: 增加 loadingMsg 參數
     function composeFinalImage(sourceImageUrl, loadingMsg) {
         switchStage('stage-3'); 
         document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中...";
-        document.getElementById('prompt-debug').innerText = ""; // 清空 AI 提示
+        document.getElementById('prompt-debug').innerText = ""; 
         simulateProgress();
 
         const rawText = document.getElementById('text-main').value;
@@ -354,7 +425,6 @@
         baseImg.src = sourceImageUrl;
     }
 
-    // V17: Canvas 邊框繪製器
     function applyFrameDrawing(ctx, style, w, h, ft, mt) {
         const total = ft + mt;
         ctx.fillStyle = (style === 'museum_mat') ? '#fcfcfc' : '#1a1a1a';
@@ -400,7 +470,6 @@
         return pCanvas;
     }
 
-    // --- 既有相機與 AI 邏輯 ---
     function applyTextStyle(ctx, style, w) {
         const fontSize = Math.floor(w / 15); ctx.font = `bold ${fontSize}px "Microsoft JhengHei", sans-serif`; ctx.lineWidth = fontSize / 10; ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
         switch(style) {
@@ -420,56 +489,6 @@
         const fontSize = Math.floor((rightX*0.9) / 25); ctx.font = `bold ${fontSize}px "Kaiti SC", STKaiti, serif`; ctx.fillStyle = '#cc0000'; ctx.textAlign = 'right'; ctx.shadowBlur = 0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0; ctx.fillText("— " + name + " 印", rightX - 30, bottomY - 30);
     }
 
-    // V18: 重新命名啟動函式
-    async function firstStartCamera() {
-        errorMsg.innerText = "";
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            await listCameras();
-            stream.getTracks().forEach(track => track.stop());
-            setMode(false); // 設定為相機模式
-            document.getElementById('start-overlay').style.display = 'none';
-            switchStage('stage-1');
-        } catch (err) { errorMsg.innerText = "啟動失敗：" + err.message + "\n請用 Chrome 開啟"; }
-    }
-    async function listCameras() {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-        cameraList.innerHTML = '';
-        videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            let label = device.label || `相機 ${index + 1}`;
-            if (label.toLowerCase().includes('back') || label.includes('後')) label = "📸 後置鏡頭";
-            else if (label.toLowerCase().includes('front') || label.includes('前')) label = "👤 前置自拍";
-            option.text = label;
-            cameraList.appendChild(option);
-        });
-    }
-    async function startSpecificCamera() {
-        const deviceId = cameraList.value;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } });
-            video.srcObject = stream;
-            document.getElementById('start-overlay').style.display = 'none';
-            switchStage('stage-1');
-        } catch (err) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                document.getElementById('start-overlay').style.display = 'none';
-                switchStage('stage-1');
-            } catch (fatalErr) { alert("無法啟動相機"); }
-        }
-    }
-    function capturePhoto() {
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        previewImg.src = canvas.toDataURL('image/png'); 
-        setMode(false); // 確保是相機模式
-        switchStage('stage-2');
-    }
     function getDetails() {
         const ids = ['opt-clothes', 'opt-hair', 'opt-headwear', 'opt-held', 'opt-location', 'opt-weather'];
         let details = [];
@@ -477,12 +496,8 @@
         return details.join(", ");
     }
     
-    // V18: 重新命名 AI 生成函式
     function generateAI(styleKey) {
-        // 只有在非上傳模式下才執行 AI
         if (isUploadMode) return;
-
-        // V18 修改: 傳遞 loadingMsg
         composeFinalImage(null, "⚡ AI 繪圖與裝裱中..."); 
         document.getElementById('prompt-debug').innerText = "AI 指令運算中...";
 
@@ -500,11 +515,7 @@
         
         const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`;
         
-        // 這裡我們只需要 AI 的網址，不需要它載入圖片，因為 composeFinalImage 會處理
-        // 我們重新呼叫一次 composeFinalImage，這次帶上真正的 AI URL
-        setTimeout(() => {
-             composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中...");
-        }, 100);
+        setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中..."); }, 100);
     }
     
     function simulateProgress() { const bar = document.getElementById('progress-bar'); let w = 0; const int = setInterval(() => { if(w>=90) clearInterval(int); w+=10; bar.style.width=w+'%'; }, 300); }
