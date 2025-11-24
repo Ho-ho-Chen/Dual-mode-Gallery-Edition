@@ -3,69 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Mirror AI - V22.0 Ultimate</title>
+    <title>Live Mirror AI - V23.0 Preview</title>
     <style>
-        /* M28 視覺傳播：傳世典藏黑金風格 */
-        :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; /* 香檳金 */ --accent-highlight: #ffd700; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
+        /* M28 視覺傳播：黑金藝廊風格 */
+        :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
         * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", -apple-system, sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
         #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); }
         
-        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .version-tag { font-size: 10px; background: linear-gradient(45deg, var(--accent-color), var(--accent-highlight)); padding: 3px 8px; border-radius: 4px; color: #000; font-weight: 900; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); letter-spacing: 1px; }
+        .version-tag { font-size: 10px; background: var(--accent-color); padding: 2px 6px; border-radius: 4px; color: #000; font-weight: bold; }
 
         .stage { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
-        .active { display: flex; animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .viewport { width: 100%; min-height: 300px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; flex: none; border-radius: 8px; }
+        .viewport { width: 100%; min-height: 300px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border-radius: 8px; }
         video, img { width: 100%; height: 100%; object-fit: contain; max-height: 55vh; } 
         .mirror { transform: scaleX(-1); }
 
-        .control-panel { width: 100%; background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-        .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .control-panel { width: 100%; background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+        .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
         
         .ai-only-section { display: block; }
         .upload-mode .ai-only-section { display: none !important; }
 
-        /* V22: 優化輸入框樣式 */
-        .detail-textarea { width: 100%; padding: 12px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; transition: border 0.3s, background 0.3s; }
-        .detail-input { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; transition: border 0.3s, background 0.3s; }
-        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); background: #333; box-shadow: 0 0 8px rgba(197, 160, 89, 0.2); }
+        /* V23: 預覽畫布樣式 */
+        #text-preview-canvas { width: 100%; height: 100px; background: #222; border: 1px dashed #444; border-radius: 8px; margin-bottom: 15px; display: block; }
+
+        .detail-textarea { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; }
+        .detail-input { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; }
+        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); }
 
         .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .select-group { display: flex; flex-direction: column; gap: 5px; }
         .select-label { font-size: 11px; color: #888; margin-left: 2px; font-weight: bold; }
-        select.detail-select { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s, background 0.3s; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27292.4%27%20height%3D%27292.4%27%3E%3Cpath%20fill%3D%27%23c5a059%27%20d%3D%27M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2087.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%208%205.4%2013%205.4s9.3-1.8%2013-5.4l128-128c3.6-3.6%205.4-8%205.4-13%200-5-1.8-9.3-5.4-13z%27%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 12px auto; padding-right: 30px; }
-        select.detail-select:focus { border-color: var(--accent-color); background-color: #333; }
+        select.detail-select { width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
+        select.detail-select:focus { border-color: var(--accent-color); }
 
-        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; margin: 10px 0; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -7px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 2px solid #fff; }
+        /* 滑桿與數值 */
+        .slider-container { display: flex; align-items: center; gap: 10px; }
+        input[type=range] { flex: 1; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -6px; border: 2px solid #fff; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
+        #text-size-display { color: var(--accent-color); font-size: 12px; width: 30px; text-align: right; }
 
-        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; backdrop-filter: blur(8px); }
+        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; }
-        .btn-action:active { transform: scale(0.97); box-shadow: 0 2px 5px rgba(197, 160, 89, 0.3); }
-        .btn-upload { background: linear-gradient(135deg, #333, #1a1a1a); color: white; border: 1px solid #444; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .btn-upload:hover { background: #444; border-color: #555; }
-        /* V22 新增按鈕 */
+        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-upload { background: #444; color: white; border: 1px solid #666; box-shadow: none; }
         .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
 
         select.camera-select { width: 100%; padding: 12px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 12px; font-size: 16px; outline: none; }
         
         .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; padding-bottom: 40px;}
-        .style-card { background: #222; border: 1px solid #444; border-radius: 10px; padding: 15px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: bold; color: #ccc; }
-        .style-card:hover { border-color: var(--accent-color); color: white; background: #2a2a2a; }
-        .style-card:active { transform: scale(0.96); background: #333; }
-        .style-real { border: 1px solid var(--accent-color); background: linear-gradient(45deg, rgba(197, 160, 89, 0.1), transparent); color: var(--accent-color); }
+        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 12px; padding: 12px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; }
+        .style-card:active { transform: scale(0.96); background: #444; }
+        .style-real { border: 1px solid var(--accent-color); background: rgba(197, 160, 89, 0.1); }
+        .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
 
         .gender-toggle { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
-        .gender-option { flex: 1; text-align: center; padding: 12px; background: #222; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
-        .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(197, 160, 89, 0.3); }
+        .gender-option { flex: 1; text-align: center; padding: 12px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
+        .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
         
-        canvas { display: none !important; }
+        /* V23: 隱藏工作用 canvas，保留預覽用 canvas */
+        #canvas-comp, #canvas-resize, #canvas { display: none !important; }
         #file-input { display: none; }
     </style>
 </head>
@@ -73,18 +76,16 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V22.0 傳世典藏</span>
+        Live Mirror AI <span class="version-tag">V23.0 預覽版</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 28px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 16px;">V22.0 國寶級大師版</p>
-        
+        <p style="color:#aaa; margin-bottom:30px;">V23.0 實時預覽修正版</p>
         <div id="btn-container" class="btn-group">
-            <button class="btn-action" onclick="initCameraMode()">📸 啟動相機<br><span style="font-size:12px; opacity:0.8;">(AI 繪圖 / 純裝裱)</span></button>
-            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片<br><span style="font-size:12px; opacity:0.8;">(直接裝裱)</span></button>
+            <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
+            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
         </div>
-
         <div id="step-selection" style="display:none; width:100%; margin-top: 20px;">
             <p style="color:white; margin-bottom:15px;">請選擇鏡頭：</p>
             <select id="camera-list" class="camera-select"></select>
@@ -104,7 +105,7 @@
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport" style="width: 180px; height: 180px; min-height: auto; border-radius: 12px; border: 3px solid var(--accent-color); margin-top: 5px; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2);">
+        <div class="viewport" style="width: 180px; height: 180px; min-height: auto; border-radius: 12px; border: 3px solid var(--accent-color); margin-top: 5px;">
             <img id="preview-img" src="">
         </div>
         
@@ -119,67 +120,70 @@
         <div class="control-panel" style="border-color: #555;">
             <div class="panel-title" style="color: #eee;">✍️ 大師題字與裝裱</div>
             <div style="display: flex; flex-direction: column;">
+                <span class="select-label" style="margin-bottom: 5px;">👁️ 文字樣式預覽 (即時)</span>
+                <canvas id="text-preview-canvas" width="400" height="120"></canvas>
+
                 <div class="select-group" style="margin-bottom: 10px;">
-                    <span class="select-label">📜 選擇名言佳句 (選填)</span>
+                    <span class="select-label">📜 名言佳句 (選填)</span>
                     <select id="quote-select" class="detail-select" onchange="fillQuote()">
                         <option value="">(自行輸入或選擇...)</option>
                         <optgroup label="--- 人生哲理 ---">
                             <option value="歲月靜好，現世安穩。">歲月靜好，現世安穩。</option>
                             <option value="心之所向，素履以往。">心之所向，素履以往。</option>
                             <option value="人生如逆旅，我亦是行人。">人生如逆旅，我亦是行人。</option>
-                            <option value="莫聽穿林打葉聲，何妨吟嘯且徐行。">莫聽穿林打葉聲，何妨吟嘯且徐行。</option>
                         </optgroup>
                         <optgroup label="--- 藝術唯美 ---">
                             <option value="你若盛開，蝴蝶自來。">你若盛開，蝴蝶自來。</option>
                             <option value="眼中若有美，滿目皆是畫。">眼中若有美，滿目皆是畫。</option>
-                            <option value="藝術即是爆炸！">藝術即是爆炸！</option>
                             <option value="捕捉光影，留住永恆。">捕捉光影，留住永恆。</option>
                         </optgroup>
                         <optgroup label="--- 勵志前行 ---">
                             <option value="不忘初心，方得始終。">不忘初心，方得始終。</option>
                             <option value="追逐夢想，永不放棄。">追逐夢想，永不放棄。</option>
-                            <option value="最好的作品，永遠是下一個。">最好的作品，永遠是下一個。</option>
                         </optgroup>
                     </select>
                 </div>
 
-                <textarea id="text-main" rows="2" placeholder="在此輸入題字內容..." class="detail-textarea"></textarea>
+                <textarea id="text-main" rows="2" placeholder="在此輸入題字內容..." class="detail-textarea" oninput="updatePreview()"></textarea>
                 
                 <div class="select-group" style="margin-bottom: 10px;">
                     <span class="select-label">🔠 文字大小</span>
-                    <input type="range" id="text-size" min="10" max="100" value="30">
+                    <div class="slider-container">
+                        <input type="range" id="text-size" min="10" max="100" value="30" oninput="updatePreview()">
+                        <span id="text-size-display">30</span>
+                    </div>
                 </div>
 
                 <div class="select-grid">
-                    <div class="select-group"><span class="select-label">🅰️ 文字風格</span><select id="text-style" class="detail-select"><option value="none">(不加文字)</option><option value="calligraphy">1. 古典書法</option><option value="neon">2. 賽博霓虹</option><option value="comic">3. 熱血漫畫</option><option value="cute">4. 可愛手寫</option><option value="elegant">5. 優雅金漆</option><option value="typewriter">6. 復古打字機</option><option value="graffiti">7. 街頭塗鴉</option><option value="headline">8. 新聞標題</option><option value="stone">9. 浮雕石刻</option><option value="ink">10. 水墨暈染</option></select></div>
+                    <div class="select-group"><span class="select-label">🅰️ 文字風格</span><select id="text-style" class="detail-select" onchange="updatePreview()"><option value="none">(不加文字)</option><option value="calligraphy">1. 古典書法</option><option value="neon">2. 賽博霓虹</option><option value="comic">3. 熱血漫畫</option><option value="cute">4. 可愛手寫</option><option value="elegant">5. 優雅金漆</option><option value="typewriter">6. 復古打字機</option><option value="graffiti">7. 街頭塗鴉</option><option value="headline">8. 新聞標題</option><option value="stone">9. 浮雕石刻</option><option value="ink">10. 水墨暈染</option></select></div>
                     <div class="select-group"><span class="select-label">↕️ 文字位置</span><select id="text-position" class="detail-select"><option value="bottom">置底 (預設)</option><option value="top">置頂</option><option value="center">正中間</option></select></div>
                 </div>
 
                 <div style="border-top: 1px solid #444; padding-top: 15px; margin-top: 15px;">
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <span style="font-size: 20px; margin-right: 5px;">🈴</span>
-                        <input type="text" id="text-signature" placeholder="輸入落款大名 (智能縮放)" class="detail-input" style="margin-bottom: 0; border-color: var(--text-accent); color: var(--text-accent); font-weight: bold;">
+                        <input type="text" id="text-signature" placeholder="落款大名" class="detail-input" style="margin-bottom: 0; border-color: var(--text-accent); color: var(--text-accent); font-weight: bold;" oninput="updatePreview()">
                     </div>
                     <div class="select-grid">
-                        <div class="select-group"><span class="select-label">🔴 印章形狀</span><select id="seal-shape" class="detail-select"><option value="square">1. 正方印</option><option value="rect">2. 長方印</option><option value="circle">3. 圓形印</option><option value="oval">4. 橢圓印</option><option value="rounded">5. 圓角印</option></select></div>
-                        <div class="select-group"><span class="select-label">✒️ 印章字體</span><select id="seal-font" class="detail-select"><option value="standard">1. 標準正楷</option><option value="serif_bold">2. 莊重宋體</option><option value="cursive">3. 飄逸行書</option><option value="heavy">4. 厚重黑體</option><option value="thin">5. 清秀細明</option><option value="old">6. 仿古隸書</option><option value="seal_script" selected>7. 模擬篆刻</option><option value="rough">8. 斑駁古印</option><option value="ink_bleed">9. 墨暈手寫</option><option value="modern">10. 現代設計</option></select></div>
+                        <div class="select-group"><span class="select-label">🔴 印章形狀</span><select id="seal-shape" class="detail-select" onchange="updatePreview()"><option value="square">1. 正方印</option><option value="rect">2. 長方印</option><option value="circle">3. 圓形印</option><option value="oval">4. 橢圓印</option><option value="rounded">5. 圓角印</option></select></div>
+                        <div class="select-group"><span class="select-label">✒️ 印章字體</span><select id="seal-font" class="detail-select" onchange="updatePreview()"><option value="standard">1. 標準正楷</option><option value="serif_bold">2. 莊重宋體</option><option value="cursive">3. 飄逸行書</option><option value="heavy">4. 厚重黑體</option><option value="thin">5. 清秀細明</option><option value="old">6. 仿古隸書</option><option value="seal_script" selected>7. 模擬篆刻</option><option value="rough">8. 斑駁古印</option><option value="ink_bleed">9. 墨暈手寫</option><option value="modern">10. 現代設計</option></select></div>
                     </div>
                 </div>
 
                 <div class="select-group" style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
-                    <span class="select-label">🖼️ V22 博物館級邊框 (立體工藝)</span>
+                    <span class="select-label">🖼️ V22 博物館級邊框</span>
                     <select id="frame-style" class="detail-select" style="border-color: var(--accent-color); font-weight: bold; color: var(--accent-color);">
                         <option value="none">(不加邊框)</option>
-                        <option value="gold_classic">1. 👑 經典金箔框 (極致奢華)</option>
-                        <option value="silver_antique">2. 🏛️ 古典銀雕框 (優雅歲月)</option>
-                        <option value="wood_walnut" selected>3. 🪵 深胡桃木 (沉穩大氣)</option>
-                        <option value="wood_oak">4. 🌿 淺色橡木 (清新自然)</option>
-                        <option value="museum_mat">5. 🖼️ 博物館襯紙 (專業典藏)</option>
-                        <option value="gallery_black">6. ⬛ 極簡黑藝廊 (現代藝術)</option>
-                        <option value="ornate_vintage">7. ⚜️ 歐式繁複 (宮廷多層)</option>
-                        <option value="modern_metal">8. ⚙️ 工業風金屬 (冷冽質感)</option>
-                        <option value="rustic">9. 🍂 鄉村風舊木 (粗獷原始)</option>
-                        <option value="neon_cyber">10. 🎆 賽博霓虹框 (未來科幻)</option>
+                        <option value="gold_classic">1. 👑 經典金箔框</option>
+                        <option value="silver_antique">2. 🏛️ 古典銀雕框</option>
+                        <option value="wood_walnut" selected>3. 🪵 深胡桃木</option>
+                        <option value="wood_oak">4. 🌿 淺色橡木</option>
+                        <option value="museum_mat">5. 🖼️ 博物館襯紙</option>
+                        <option value="gallery_black">6. ⬛ 極簡黑藝廊</option>
+                        <option value="ornate_vintage">7. ⚜️ 歐式繁複</option>
+                        <option value="modern_metal">8. ⚙️ 工業風金屬</option>
+                        <option value="rustic">9. 🍂 鄉村風舊木</option>
+                        <option value="neon_cyber">10. 🎆 賽博霓虹框</option>
                     </select>
                 </div>
             </div>
@@ -205,14 +209,13 @@
         </div>
 
         <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認裝裱 (使用上傳圖)</button>
-        
         <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:15px;" onclick="location.reload()">⬅️ 返回首頁</button>
     </div>
 
     <div id="stage-3" class="stage" style="justify-content: center;">
         <h2 id="loading-text" style="color: var(--accent-color);">⚡ 處理中...</h2>
         <div style="width:70%; height:6px; background:#333; margin-top:20px; border-radius:3px; overflow: hidden;">
-            <div id="progress-bar" style="width:0%; height:100%; background: linear-gradient(90deg, var(--accent-color), var(--accent-highlight)); transition:width 0.3s;"></div>
+            <div id="progress-bar" style="width:0%; height:100%; background: linear-gradient(90deg, var(--accent-color), #fff); transition:width 0.3s;"></div>
         </div>
         <p id="prompt-debug" style="color:#888; font-size:12px; margin-top:15px; max-width:80%; text-align:center;"></p>
     </div>
@@ -220,7 +223,7 @@
     <div id="stage-4" class="stage">
         <h2 style="color: var(--accent-color);">✨ 您的傳世大作</h2>
         <div class="viewport" style="background: transparent; box-shadow: none; border: none; min-height: auto;">
-            <img id="final-result" src="" style="box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7);">
         </div>
         <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
         <div style="font-size: 13px; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; width: 100%; text-align: center;">
@@ -241,11 +244,39 @@
     const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
     let currentGender = 'girl'; let isUploadMode = false; 
 
-    // V22: 名言佳句填充
+    // V23: 實時預覽更新
+    function updatePreview() {
+        const pCanvas = document.getElementById('text-preview-canvas');
+        const pCtx = pCanvas.getContext('2d');
+        const text = document.getElementById('text-main').value || "文字效果預覽";
+        const style = document.getElementById('text-style').value;
+        const sizeVal = document.getElementById('text-size').value;
+        const signature = document.getElementById('text-signature').value || "落款";
+        const sShape = document.getElementById('seal-shape').value;
+        const sFont = document.getElementById('seal-font').value;
+
+        // 更新數值顯示
+        document.getElementById('text-size-display').innerText = sizeVal;
+
+        // 清空
+        pCtx.fillStyle = "#222"; pCtx.fillRect(0,0,pCanvas.width, pCanvas.height);
+        
+        // 模擬文字
+        const fontSize = Math.floor(pCanvas.width * (sizeVal / 1000)) + 15; // 預覽時稍微放大比例
+        applyTextStyle(pCtx, style, fontSize);
+        pCtx.textAlign = 'left';
+        pCtx.textBaseline = 'middle';
+        pCtx.fillText(text.split('\n')[0], 20, 50); // 只預覽第一行
+        if (['comic', 'neon', 'stone'].includes(style)) pCtx.strokeText(text.split('\n')[0], 20, 50);
+
+        // 模擬印章 (畫在右邊)
+        drawSmartSeal(pCtx, signature, sShape, sFont, 380, 80, 400); // canvasW 設為 400 比例才對
+    }
+
     function fillQuote() {
         const select = document.getElementById('quote-select');
         const textarea = document.getElementById('text-main');
-        if (select.value) textarea.value = select.value;
+        if (select.value) { textarea.value = select.value; updatePreview(); }
     }
 
     async function initCameraMode() {
@@ -280,15 +311,13 @@
     const optionsData = { girl: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}], hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}] }, boy: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}], hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}] } };
     function updateOptions(gender) { const data = optionsData[gender]; const populate = (id, items) => { const select = document.getElementById(id); select.innerHTML = ""; items.forEach(item => { const opt = document.createElement("option"); opt.value = item.val; opt.innerText = item.txt; select.appendChild(opt); }); }; populate('opt-clothes', data.clothes); populate('opt-hair', data.hair); populate('opt-headwear', data.headwear); populate('opt-held', data.held); }
     function switchGender(g) { currentGender = g; document.getElementById('btn-boy').classList.toggle('selected', g==='boy'); document.getElementById('btn-girl').classList.toggle('selected', g==='girl'); updateOptions(g); }
-    window.onload = () => { updateOptions('girl'); };
+    window.onload = () => { updateOptions('girl'); updatePreview(); };
 
     function setMode(upload) { isUploadMode = upload; const stage2 = document.getElementById('stage-2'); const uploadBtn = document.getElementById('btn-upload-finish'); if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } }
     function triggerUpload() { document.getElementById('file-input').click(); }
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const MAX_SIZE = 1200; let w = img.width; let h = img.height; if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } } canvasResize.width = w; canvasResize.height = h; const ctx = canvasResize.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95); setMode(true); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2'); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
-    // V22 修復：上傳模式完成
     function finishUploadMode() { composeFinalImage(previewImg.src, "⚡ 正在為您的照片裝裱..."); }
-    // V22 修復：相機模式直接裝裱
     function finishDirectMode() { composeFinalImage(previewImg.src, "⚡ 正在為照片裝裱 (原圖)..."); }
 
     function capturePhoto() { canvasResize.width = video.videoWidth; canvasResize.height = video.videoHeight; const ctx = canvasResize.getContext('2d'); ctx.translate(canvasResize.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, canvasResize.width, canvasResize.height); previewImg.src = canvasResize.toDataURL('image/png'); setMode(false); switchStage('stage-2'); }
@@ -296,33 +325,23 @@
     function getDetails() { const ids = ['opt-clothes', 'opt-hair', 'opt-headwear', 'opt-held', 'opt-location', 'opt-weather']; let details = []; ids.forEach(id => { const val = document.getElementById(id).value; if(val) details.push(val); }); return details.join(", "); }
     function generateAI(styleKey) { if (isUploadMode) return; composeFinalImage(null, "⚡ AI 繪圖大師揮毫中..."); document.getElementById('prompt-debug').innerText = "正在構思畫面細節..."; let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; let detailPrompt = getDetails(); let fullPrompt = ""; if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`; else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`; else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`; else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`; else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`; else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`; else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`; else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`; const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`; setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖完成，正在裝裱..."); }, 100); }
 
-    // --- V22 核心合成引擎 ---
     function composeFinalImage(sourceImageUrl, loadingMsg) {
         switchStage('stage-3'); document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; document.getElementById('prompt-debug').innerText = ""; simulateProgress();
         const rawText = document.getElementById('text-main').value; const textStyle = document.getElementById('text-style').value; const signature = document.getElementById('text-signature').value; const position = document.getElementById('text-position').value; const frameStyle = document.getElementById('frame-style').value; const textSizeVal = document.getElementById('text-size').value; const sealShape = document.getElementById('seal-shape').value; const sealFont = document.getElementById('seal-font').value;
-        const baseImg = new Image(); baseImg.crossOrigin = "anonymous"; 
+        const baseImg = new Image();
+        // V23 修復：只對外部網址(AI)啟用跨域，避免 Base64 出錯
+        if (sourceImageUrl.startsWith('http')) { baseImg.crossOrigin = "anonymous"; }
+        
         baseImg.onload = () => {
-            // V22: 更精細的邊框厚度計算
-            let frameThickness = 0; let matThickness = 0;
-            const baseDim = Math.min(baseImg.width, baseImg.height);
-            if (frameStyle !== 'none') {
-                if(frameStyle.includes('gold') || frameStyle.includes('vintage') || frameStyle.includes('walnut')) frameThickness = baseDim * 0.06; else frameThickness = baseDim * 0.04;
-                if (frameStyle === 'museum_mat') matThickness = baseDim * 0.12; else if (frameStyle === 'gold_classic' || frameStyle === 'silver_antique') matThickness = baseDim * 0.025;
-            }
+            let frameThickness = 0; let matThickness = 0; const baseDim = Math.min(baseImg.width, baseImg.height);
+            if (frameStyle !== 'none') { if(frameStyle.includes('gold') || frameStyle.includes('vintage') || frameStyle.includes('walnut')) frameThickness = baseDim * 0.06; else frameThickness = baseDim * 0.04; if (frameStyle === 'museum_mat') matThickness = baseDim * 0.12; else if (frameStyle === 'gold_classic' || frameStyle === 'silver_antique') matThickness = baseDim * 0.025; }
             const ft = Math.floor(frameThickness); const mt = Math.floor(matThickness); const totalBorder = ft + mt;
             canvasComp.width = baseImg.width + (totalBorder * 2); canvasComp.height = baseImg.height + (totalBorder * 2);
             const ctx = canvasComp.getContext('2d'); const cw = canvasComp.width; const ch = canvasComp.height;
-
-            // 1. 繪製 V22 高級邊框
             if (frameStyle !== 'none') { applyAdvancedFrame(ctx, frameStyle, cw, ch, ft, mt); }
-
-            // 2. 繪製內容
             const contentX = totalBorder; const contentY = totalBorder; const contentW = baseImg.width; const contentH = baseImg.height;
             ctx.drawImage(baseImg, contentX, contentY);
-            // V22: 畫作內陰影 (更深邃)
             if (frameStyle !== 'none' && frameStyle !== 'neon_cyber') { ctx.shadowColor = "rgba(0,0,0,0.75)"; ctx.shadowBlur = ft*0.8; ctx.shadowOffsetX = ft*0.2; ctx.shadowOffsetY = ft*0.2; ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth = 2; ctx.strokeRect(contentX, contentY, contentW, contentH); ctx.shadowBlur = 0; }
-
-            // 3. 繪製文字與印章
             ctx.save(); ctx.beginPath(); ctx.rect(contentX, contentY, contentW, contentH); ctx.clip();
             if (rawText && textStyle !== 'none') {
                 const lines = rawText.split('\n'); const fontSize = Math.floor(contentW * (textSizeVal / 500)); applyTextStyle(ctx, textStyle, fontSize); ctx.textAlign = 'center'; const lineHeight = fontSize * 1.3; let startY;
@@ -331,89 +350,13 @@
             }
             if (signature) { drawSmartSeal(ctx, signature, sealShape, sealFont, contentX + contentW, contentY + contentH, contentW); }
             ctx.restore();
-
             finalImg.src = canvasComp.toDataURL('image/png'); document.getElementById("qrcode-container").innerHTML = ""; new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); switchStage('stage-4');
         };
         baseImg.onerror = () => { alert("圖片載入失敗，請重試。"); location.reload(); }; baseImg.src = sourceImageUrl;
     }
 
-    // V22: 博物館級邊框繪製引擎 (Procedural textures & Deep Bevels)
-    function applyAdvancedFrame(ctx, style, w, h, ft, mt) {
-        const total = ft + mt;
-        // 襯紙層
-        if (mt > 0) {
-            ctx.fillStyle = '#fdfdfd'; ctx.fillRect(0, 0, w, h); drawNoise(ctx, 0, 0, w, h, 0.04); // 紙張紋理
-            // 襯紙內斜角 (Bevel Cut)
-            drawSolidBevel(ctx, ft, ft, w-ft*2, h-ft*2, Math.max(2, mt*0.1), '#ffffff', '#d9d9d9');
-        }
-        // 外框層
-        if (ft > 0) {
-            ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.clip('evenodd');
-            if (style === 'gold_classic') {
-                let grad = ctx.createLinearGradient(0, 0, w, h); grad.addColorStop(0, '#e6c26e'); grad.addColorStop(0.3, '#bf953f'); grad.addColorStop(0.5, '#fcf6ba'); grad.addColorStop(0.7, '#b38728'); grad.addColorStop(1, '#aa771c'); ctx.fillStyle = grad; ctx.fillRect(0,0,w,h); drawNoise(ctx, 0,0,w,h, 0.06);
-                drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.7)', 'rgba(80,60,20,0.7)');
-            } else if (style === 'wood_walnut') {
-                ctx.fillStyle = '#4a332a'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#2e1e19', 0.4); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.15)', 'rgba(0,0,0,0.6)');
-            } else if (style === 'ornate_vintage') {
-                ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#221100', 0.3);
-                ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=ft*0.3; ctx.strokeStyle = '#d4af37'; ctx.lineWidth = ft * 0.15; ctx.strokeRect(ft*0.3, ft*0.3, w-ft*0.6, h-ft*0.6); ctx.shadowBlur=0; // 金線
-                drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,240,200,0.25)', 'rgba(0,0,0,0.85)');
-            } else if (style === 'neon_cyber') {
-                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h); ctx.shadowColor = '#00eaff'; ctx.shadowBlur = ft; ctx.strokeStyle = '#ff00de'; ctx.lineWidth = ft*0.1; ctx.strokeRect(ft, ft, w - ft*2, h - ft*2); ctx.shadowBlur = 0;
-            } else if (style === 'gallery_black') {
-                ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.03); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.8)');
-            } else {
-                ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.05); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.4)', 'rgba(0,0,0,0.5)');
-            }
-            ctx.restore();
-        }
-    }
-
-    // V22: 智能印章引擎 (自動縮放+擬真質感)
-    function drawSmartSeal(ctx, name, shape, fontStyle, rightX, bottomY, canvasW) {
-        const baseSize = Math.floor(canvasW * 0.12); // 基礎大小
-        const margin = baseSize * 0.3;
-        const x = rightX - baseSize - margin; const y = bottomY - baseSize - margin; const center = baseSize / 2;
-
-        ctx.save(); ctx.translate(x, y);
-        // 印泥質感：邊緣模糊 + 內部雜點
-        ctx.shadowColor = "#990000"; ctx.shadowBlur = 4; ctx.fillStyle = "#c21f1f"; 
-        ctx.beginPath();
-        if (shape === 'square') ctx.rect(0, 0, baseSize, baseSize); else if (shape === 'rect') ctx.rect(0, baseSize*0.2, baseSize, baseSize*0.6); else if (shape === 'circle') ctx.arc(center, center, center, 0, Math.PI*2); else if (shape === 'oval') ctx.ellipse(center, center, center, center*0.6, 0, 0, Math.PI*2); else if (shape === 'rounded') { const r = baseSize*0.2; ctx.roundRect(0,0,baseSize,baseSize,r); }
-        ctx.fill(); ctx.shadowBlur = 0;
-        drawNoise(ctx, 0, 0, baseSize, baseSize, 0.15); // 印泥雜點
-
-        // 字體選擇
-        let fontName = "sans-serif"; let fontWeight = "bold";
-        switch(fontStyle) {
-            case 'standard': fontName = '"Microsoft JhengHei", sans-serif'; break; case 'serif_bold': fontName = '"Songti SC", serif'; fontWeight="900"; break; case 'cursive': fontName = '"Kaiti SC", cursive'; fontWeight="normal"; break; case 'heavy': fontName = '"Arial Black", sans-serif'; break; case 'thin': fontName = '"MingLiU", serif'; fontWeight="100"; break; case 'old': fontName = '"LiSu", "Kaiti SC", serif'; break; case 'seal_script': fontName = '"SimSun", serif'; break; case 'rough': fontName = '"Courier New", monospace'; break; case 'ink_bleed': fontName = '"Kaiti SC", serif'; ctx.shadowColor="#e0e0e0"; ctx.shadowBlur=3; break; case 'modern': fontName = 'Arial, sans-serif'; fontWeight="100"; break;
-        }
-
-        // 智能文字縮放核心
-        ctx.fillStyle = "#fdfdfd"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        let fontSize = baseSize * 0.8;
-        ctx.font = `${fontWeight} ${fontSize}px ${fontName}`;
-        
-        if (name.length <= 2 || shape === 'rect' || shape === 'oval') {
-            // 單行模式：自動縮小直到放入
-            const maxWidth = (shape === 'rect' || shape === 'oval') ? baseSize * 0.9 : baseSize * 0.8;
-            while (ctx.measureText(name).width > maxWidth && fontSize > 10) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; }
-            ctx.fillText(name, center, center);
-        } else {
-            // 雙行模式 (適用於方/圓印的多字)
-            fontSize = baseSize * 0.4; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`;
-            const mid = Math.ceil(name.length / 2);
-            const line1 = name.substring(0, mid); const line2 = name.substring(mid);
-            // 再次檢查每行寬度
-            const maxLineW = baseSize * 0.75;
-            while ((ctx.measureText(line1).width > maxLineW || ctx.measureText(line2).width > maxLineW) && fontSize > 8) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; }
-            ctx.fillText(line1, center + fontSize*0.1, center - fontSize*0.55); // 右上
-            ctx.fillText(line2, center - fontSize*0.1, center + fontSize*0.55); // 左下
-        }
-        ctx.restore();
-    }
-
-    // V22: 高級繪圖輔助函式
+    function applyAdvancedFrame(ctx, style, w, h, ft, mt) { const total = ft + mt; if (mt > 0) { ctx.fillStyle = '#fdfdfd'; ctx.fillRect(0, 0, w, h); drawNoise(ctx, 0, 0, w, h, 0.04); drawSolidBevel(ctx, ft, ft, w-ft*2, h-ft*2, Math.max(2, mt*0.1), '#ffffff', '#d9d9d9'); } if (ft > 0) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.clip('evenodd'); if (style === 'gold_classic') { let grad = ctx.createLinearGradient(0, 0, w, h); grad.addColorStop(0, '#e6c26e'); grad.addColorStop(0.3, '#bf953f'); grad.addColorStop(0.5, '#fcf6ba'); grad.addColorStop(0.7, '#b38728'); grad.addColorStop(1, '#aa771c'); ctx.fillStyle = grad; ctx.fillRect(0,0,w,h); drawNoise(ctx, 0,0,w,h, 0.06); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.7)', 'rgba(80,60,20,0.7)'); } else if (style === 'wood_walnut') { ctx.fillStyle = '#4a332a'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#2e1e19', 0.4); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.15)', 'rgba(0,0,0,0.6)'); } else if (style === 'ornate_vintage') { ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#221100', 0.3); ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=ft*0.3; ctx.strokeStyle = '#d4af37'; ctx.lineWidth = ft * 0.15; ctx.strokeRect(ft*0.3, ft*0.3, w-ft*0.6, h-ft*0.6); ctx.shadowBlur=0; drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,240,200,0.25)', 'rgba(0,0,0,0.85)'); } else if (style === 'neon_cyber') { ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h); ctx.shadowColor = '#00eaff'; ctx.shadowBlur = ft; ctx.strokeStyle = '#ff00de'; ctx.lineWidth = ft*0.1; ctx.strokeRect(ft, ft, w - ft*2, h - ft*2); ctx.shadowBlur = 0; } else if (style === 'gallery_black') { ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.03); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.8)'); } else { ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.05); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.4)', 'rgba(0,0,0,0.5)'); } ctx.restore(); } }
+    function drawSmartSeal(ctx, name, shape, fontStyle, rightX, bottomY, canvasW) { const baseSize = Math.floor(canvasW * 0.12); const margin = baseSize * 0.3; const x = rightX - baseSize - margin; const y = bottomY - baseSize - margin; const center = baseSize / 2; ctx.save(); ctx.translate(x, y); ctx.shadowColor = "#990000"; ctx.shadowBlur = 4; ctx.fillStyle = "#c21f1f"; ctx.beginPath(); if (shape === 'square') ctx.rect(0, 0, baseSize, baseSize); else if (shape === 'rect') ctx.rect(0, baseSize*0.2, baseSize, baseSize*0.6); else if (shape === 'circle') ctx.arc(center, center, center, 0, Math.PI*2); else if (shape === 'oval') ctx.ellipse(center, center, center, center*0.6, 0, 0, Math.PI*2); else if (shape === 'rounded') { const r = baseSize*0.2; ctx.roundRect(0,0,baseSize,baseSize,r); } ctx.fill(); ctx.shadowBlur = 0; drawNoise(ctx, 0, 0, baseSize, baseSize, 0.15); let fontName = "sans-serif"; let fontWeight = "bold"; switch(fontStyle) { case 'standard': fontName = '"Microsoft JhengHei", sans-serif'; break; case 'serif_bold': fontName = '"Songti SC", serif'; fontWeight="900"; break; case 'cursive': fontName = '"Kaiti SC", cursive'; fontWeight="normal"; break; case 'heavy': fontName = '"Arial Black", sans-serif'; break; case 'thin': fontName = '"MingLiU", serif'; fontWeight="100"; break; case 'old': fontName = '"LiSu", "Kaiti SC", serif'; break; case 'seal_script': fontName = '"SimSun", serif'; break; case 'rough': fontName = '"Courier New", monospace'; break; case 'ink_bleed': fontName = '"Kaiti SC", serif'; ctx.shadowColor="#e0e0e0"; ctx.shadowBlur=3; break; case 'modern': fontName = 'Arial, sans-serif'; fontWeight="100"; break; } ctx.fillStyle = "#fdfdfd"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let fontSize = baseSize * 0.8; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; if (name.length <= 2 || shape === 'rect' || shape === 'oval') { const maxWidth = (shape === 'rect' || shape === 'oval') ? baseSize * 0.9 : baseSize * 0.8; while (ctx.measureText(name).width > maxWidth && fontSize > 10) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; } ctx.fillText(name, center, center); } else { fontSize = baseSize * 0.4; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; const mid = Math.ceil(name.length / 2); const line1 = name.substring(0, mid); const line2 = name.substring(mid); const maxLineW = baseSize * 0.75; while ((ctx.measureText(line1).width > maxLineW || ctx.measureText(line2).width > maxLineW) && fontSize > 8) { fontSize -= 2; ctx.font = `${fontWeight} ${fontSize}px ${fontName}`; } ctx.fillText(line1, center + fontSize*0.1, center - fontSize*0.55); ctx.fillText(line2, center - fontSize*0.1, center + fontSize*0.55); } ctx.restore(); }
     function drawDeepBevel(ctx,x,y,w,h,t,lc,sc){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w-t,y+t);ctx.lineTo(x+t,y+t);ctx.fillStyle=lc;ctx.fill();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+t,y+t);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x,y+h);ctx.fillStyle=lc;ctx.fill();ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w-t,y+t);ctx.fillStyle=sc;ctx.fill();ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w,y+h);ctx.fillStyle=sc;ctx.fill();}
     function drawSolidBevel(ctx,x,y,w,h,t,c1,c2){ctx.fillStyle=c1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w-t,y+t);ctx.lineTo(x+t,y+t);ctx.fill();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+t,y+t);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x,y+h);ctx.fill();ctx.fillStyle=c2;ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w-t,y+t);ctx.fill();ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+t,y+h-t);ctx.lineTo(x+w-t,y+h-t);ctx.lineTo(x+w,y+h);ctx.fill();}
     function drawNoise(ctx,x,y,w,h,a){const id=ctx.getImageData(x,y,w,h);for(let i=0;i<id.data.length;i+=4){const n=(Math.random()-0.5)*255*a;id.data[i]+=n;id.data[i+1]+=n;id.data[i+2]+=n;}ctx.putImageData(id,x,y);}
