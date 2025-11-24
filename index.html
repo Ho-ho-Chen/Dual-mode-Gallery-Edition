@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V28.0 Flawless</title>
+    <title>Live Mirror AI - V29.0 Fix</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -18,14 +18,15 @@
         .active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* V28: 優化視窗容器，預設有佔位符 */
-        .viewport-container { width: 100%; background: #000; border-radius: 12px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border: 1px solid #333; min-height: 200px; }
+        /* V29: 優化視窗容器，確保佔位符居中 */
+        .viewport-container { width: 100%; background: #000; border-radius: 12px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border: 1px solid #333; min-height: 250px; }
         
-        /* V28: 預設隱藏圖片，避免破圖 */
+        /* V29: 圖片預設強制隱藏，避免破圖 */
         #preview-img, #final-result { width: 100%; height: 100%; object-fit: contain; display: none; }
         
-        /* 佔位文字 */
-        .placeholder-text { color: #444; font-size: 12px; position: absolute; pointer-events: none; }
+        /* V29: 佔位符樣式 */
+        #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .placeholder-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
         .btn-action { 
@@ -76,7 +77,7 @@
         .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
 
         .gender-toggle { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; }
-        .gender-option { flex: 1; text-align: center; padding: 10px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 14px; transition: all 0.3s; }
+        .gender-option { flex: 1; text-align: center; padding: 10px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 13px; transition: all 0.3s; }
         .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
         
         #canvas-comp, #canvas-resize, #canvas { display: none !important; }
@@ -90,12 +91,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V28.0 零瑕疵</span>
+        Live Mirror AI <span class="version-tag">V29.0</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V28.0 最終版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V29.0 預覽修復版</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -112,15 +113,18 @@
 
     <div id="stage-1" class="stage">
         <div class="viewport-container" style="max-height: 60vh;">
-            <video id="webcam" playsinline class="mirror" autoplay style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <video id="webcam" playsinline class="mirror" autoplay style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
         </div>
         <button class="btn-action" onclick="capturePhoto()" style="width: 200px; max-width: none;">📸 拍 照</button>
         <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport-container" style="height: 300px; border: 2px solid var(--accent-color); background: #000;">
-            <span class="placeholder-text">等待照片載入...</span>
+        <div class="viewport-container" style="border: 2px solid var(--accent-color);">
+            <div id="preview-placeholder">
+                <div class="placeholder-icon">🖼️</div>
+                <span>等待照片載入...</span>
+            </div>
             <img id="preview-img" src="">
         </div>
         
@@ -220,6 +224,7 @@
     <div id="stage-4" class="stage">
         <h2 style="color: var(--accent-color); font-size: 22px;">✨ 您的傳世大作</h2>
         <div class="viewport-container" style="background: transparent; border: none; min-height: 300px; height: auto; padding: 10px;">
+            <div id="result-placeholder" style="display:block;">準備中...</div>
             <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: auto; height: auto; max-width: 100%; max-height: 65vh;">
         </div>
         <p style="color: var(--accent-color); font-weight: bold; font-size: 16px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
@@ -296,7 +301,26 @@
     function switchGender(g) { currentGender = g; document.getElementById('btn-boy').classList.toggle('selected', g==='boy'); document.getElementById('btn-girl').classList.toggle('selected', g==='girl'); updateOptions(g); }
     window.onload = () => { updateOptions('girl'); updatePreview(); };
 
-    function setMode(upload) { isUploadMode = upload; const stage2 = document.getElementById('stage-2'); const uploadBtn = document.getElementById('btn-upload-finish'); if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } }
+    function setMode(upload) { 
+        isUploadMode = upload; 
+        const stage2 = document.getElementById('stage-2'); 
+        const uploadBtn = document.getElementById('btn-upload-finish'); 
+        
+        // V29: 切換模式時，先隱藏圖片，顯示佔位符
+        previewImg.style.display = 'none';
+        document.getElementById('preview-placeholder').style.display = 'flex';
+
+        if (isUploadMode) { 
+            stage2.classList.add('upload-mode'); 
+            uploadBtn.style.display = 'flex'; 
+            previewImg.classList.remove('mirror'); 
+        } else { 
+            stage2.classList.remove('upload-mode'); 
+            uploadBtn.style.display = 'none'; 
+            previewImg.classList.add('mirror'); 
+        } 
+    }
+    
     function triggerUpload() { document.getElementById('file-input').click(); }
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
@@ -314,8 +338,9 @@
         ctx.drawImage(imgElement, 0, 0, w, h);
         previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95);
         
-        // V28: 強制顯示圖片 (移除 src="" 導致的破圖)
+        // V29: 圖片數據準備好後，執行「顯示圖片、隱藏佔位符」
         previewImg.style.display = 'block';
+        document.getElementById('preview-placeholder').style.display = 'none';
         
         setMode(!isCamera); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2');
     }
@@ -329,7 +354,6 @@
         switchStage('stage-3');
         document.getElementById('loading-text').innerText = "⚡ AI 繪圖中...";
         // V28: 移除救援按鈕
-        // document.getElementById('btn-rescue').style.display = 'none';
         simulateProgress();
 
         let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; 
@@ -391,8 +415,10 @@
             ctx.restore();
 
             finalImg.src = canvasComp.toDataURL('image/png'); 
-            // V28: 顯示最終結果
+            // V29: 最終結果也應用同樣的隱藏/顯示邏輯
             finalImg.style.display = 'block';
+            document.getElementById('result-placeholder').style.display = 'none';
+            
             document.getElementById("qrcode-container").innerHTML = ""; new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); switchStage('stage-4');
         };
         baseImg.onerror = () => { clearTimeout(loadWatchdog); alert("圖片載入失敗 (API Error)，請重試。"); location.reload(); }; 
@@ -425,24 +451,7 @@
     function drawWoodTexture(ctx,w,h,c,a){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.globalAlpha=a;for(let i=0;i<w;i+=3+Math.random()*5){ctx.beginPath();ctx.moveTo(i,0);for(let j=0;j<h;j+=20){ctx.lineTo(i+Math.sin(j*0.02+i)*8+(Math.random()-0.5)*3,j);}ctx.stroke();}ctx.restore();}
     function applyTextStyle(ctx,s,fs){ctx.font=`bold ${fs}px "Microsoft JhengHei",sans-serif`;ctx.lineWidth=fs/12;ctx.shadowBlur=0;ctx.shadowColor='transparent';switch(s){case 'calligraphy':ctx.fillStyle='white';ctx.font=`bold ${fs*1.1}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(0,0,0,0.8)";ctx.shadowBlur=8;break;case 'neon':ctx.fillStyle='#00eaff';ctx.strokeStyle='#ff00de';ctx.shadowColor='#00eaff';ctx.shadowBlur=15;ctx.lineWidth=3;break;case 'comic':ctx.fillStyle='#ffd700';ctx.strokeStyle='black';ctx.lineWidth=6;ctx.font=`900 ${fs}px "Arial Black",sans-serif`;break;case 'cute':ctx.fillStyle='#ff99cc';ctx.font=`bold ${fs}px "Comic Sans MS",cursive`;ctx.shadowColor="white";ctx.shadowBlur=4;break;case 'elegant':ctx.fillStyle='#d4af37';ctx.font=`italic bold ${fs}px serif`;ctx.shadowColor="#222";ctx.shadowBlur=4;break;case 'typewriter':ctx.fillStyle='#00ff00';ctx.font=`${fs}px monospace`;ctx.shadowColor="black";ctx.shadowBlur=2;break;case 'graffiti':ctx.fillStyle='white';ctx.strokeStyle='#ff3300';ctx.lineWidth=4;ctx.font=`900 ${fs*1.1}px sans-serif`;break;case 'headline':ctx.fillStyle='white';ctx.strokeStyle='black';ctx.lineWidth=3;ctx.font=`900 ${fs}px impact,sans-serif`;break;case 'stone':ctx.fillStyle='#888';ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.shadowColor="black";ctx.shadowBlur=2;ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;break;case 'ink':ctx.fillStyle='rgba(0,0,0,0.8)';ctx.font=`bold ${fs}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(255,255,255,0.3)";ctx.shadowBlur=4;break;}}
 
-    // V28: 移除救援按鈕，只留進度條
-    function simulateProgress() { 
-        const bar = document.getElementById('progress-bar'); 
-        const text = document.getElementById('progress-percent'); 
-        const debug = document.getElementById('prompt-debug'); 
-        let w = 0; 
-        const int = setInterval(() => { 
-            if(w>=99) clearInterval(int); 
-            if(w < 50) w += Math.random() * 5; else if(w < 80) w += Math.random() * 2; else w += Math.random() * 0.5; 
-            w = Math.min(w, 99); 
-            bar.style.width = w + '%'; 
-            text.innerText = Math.floor(w) + '%'; 
-            if(w < 30) debug.innerText = "正在構思畫面細節..."; 
-            else if(w < 60) debug.innerText = "AI 大師揮毫中..."; 
-            else if(w < 90) debug.innerText = "正在進行光影渲染..."; 
-            else debug.innerText = "最後修飾與裝裱..."; 
-        }, 500); 
-    }
+    function simulateProgress() { const bar = document.getElementById('progress-bar'); const text = document.getElementById('progress-percent'); const debug = document.getElementById('prompt-debug'); let w = 0; const int = setInterval(() => { if(w>=99) clearInterval(int); if(w < 50) w += Math.random() * 5; else if(w < 80) w += Math.random() * 2; else w += Math.random() * 0.5; w = Math.min(w, 99); bar.style.width = w + '%'; text.innerText = Math.floor(w) + '%'; if(w < 30) debug.innerText = "正在構思畫面細節..."; else if(w < 60) debug.innerText = "AI 大師揮毫中..."; else if(w < 90) debug.innerText = "正在進行光影渲染..."; else debug.innerText = "最後修飾與裝裱..."; }, 500); }
     function switchStage(id) { document.querySelectorAll('.stage').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); }); const target = document.getElementById(id); target.style.display = 'flex'; setTimeout(()=>target.classList.add('active'), 10); }
 </script>
 </body>
