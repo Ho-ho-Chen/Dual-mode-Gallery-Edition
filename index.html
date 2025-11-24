@@ -2,41 +2,50 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Mirror AI - V25.0 Final Fix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Live Mirror AI - V26.0 UI Fix</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        /* V26: 優化主視窗容器，避免過度撐開 */
         #app-window { width: 100%; height: 100dvh; max-width: 500px; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); }
         
-        header { padding: 15px; text-align: center; border-bottom: 1px solid #222; font-weight: bold; flex: none; font-size: 18px; display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--accent-color); letter-spacing: 1px; }
-        .version-tag { font-size: 10px; background: linear-gradient(45deg, var(--accent-color), #ffd700); padding: 3px 8px; border-radius: 4px; color: #000; font-weight: 900; }
+        header { padding: 12px; text-align: center; border-bottom: 1px solid #222; font-weight: bold; flex: none; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px; color: var(--accent-color); letter-spacing: 1px; }
+        .version-tag { font-size: 10px; background: linear-gradient(45deg, var(--accent-color), #ffd700); padding: 2px 6px; border-radius: 4px; color: #000; font-weight: 900; }
 
-        .stage { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        /* V26: 優化 Stage Padding */
+        .stage { flex: 1; display: none; flex-direction: column; align-items: center; padding: 15px; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
         .active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* V25: 移除 viewport 的固定比例，讓它自適應內容 */
-        .viewport { width: 100%; min-height: 200px; background: #000; border: none; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border-radius: 8px; }
-        video, img { width: 100%; height: 100%; object-fit: contain; max-height: 55vh; } 
-        .mirror { transform: scaleX(-1); }
+        /* V26: 通用視圖容器定義 */
+        .viewport-container { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; background: #000; border-radius: 12px; overflow: hidden; position: relative; }
+
+        /* V26: 按鈕樣式全面優化 (瘦身) */
+        .btn-group { display: flex; gap: 12px; width: 100%; justify-content: center; margin-top: 20px; }
+        .btn-action { flex: 1; padding: 12px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-upload { background: #333; color: white; border: 1px solid #444; box-shadow: none; }
+        .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
+        /* V26: 修正救援按鈕比例 */
+        .btn-rescue { background: #ff3333; color: white; border: 2px solid white; animation: pulse 1.5s infinite; display: none; width: 80%; margin-top: 25px; padding: 12px 0; max-width: none; align-self: center; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
 
         .control-panel { width: 100%; background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .panel-title { font-size: 14px; color: var(--accent-color); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
+        .panel-title { font-size: 13px; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
         
         .ai-only-section { display: block; }
         .upload-mode .ai-only-section { display: none !important; }
 
         #text-preview-canvas { width: 100%; height: 100px; background: #222; border: 1px dashed #444; border-radius: 8px; margin-bottom: 15px; display: block; }
-
         .detail-textarea { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; }
         .detail-input { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; }
         .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); }
 
-        .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .select-group { display: flex; flex-direction: column; gap: 5px; }
+        .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .select-group { display: flex; flex-direction: column; gap: 4px; }
         .select-label { font-size: 11px; color: #888; margin-left: 2px; font-weight: bold; }
         select.detail-select { width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
         select.detail-select:focus { border-color: var(--accent-color); }
@@ -48,43 +57,35 @@
         #text-size-display { color: var(--accent-color); font-size: 12px; width: 30px; text-align: right; }
 
         #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        
-        .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { flex: 1; padding: 14px 0; border-radius: 50px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); max-width: 180px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-upload { background: #444; color: white; border: 1px solid #666; box-shadow: none; }
-        .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
-        .btn-rescue { background: #ff3333; color: white; border: 2px solid white; animation: pulse 1.5s infinite; display: none; width: 100%; margin-top: 20px; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
         select.camera-select { width: 100%; padding: 12px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 12px; font-size: 16px; outline: none; }
         
-        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; padding-bottom: 40px;}
-        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 12px; padding: 12px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; }
+        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; padding-bottom: 30px;}
+        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px 5px; cursor: pointer; text-align: center; font-size: 13px; position: relative; overflow: hidden; transition: all 0.2s; }
         .style-card:active { transform: scale(0.96); background: #444; }
         .style-real { border: 1px solid var(--accent-color); background: rgba(197, 160, 89, 0.1); }
         .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
 
-        .gender-toggle { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
-        .gender-option { flex: 1; text-align: center; padding: 12px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 15px; transition: all 0.3s; }
+        .gender-toggle { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; }
+        .gender-option { flex: 1; text-align: center; padding: 10px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 14px; transition: all 0.3s; }
         .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
         
         #canvas-comp, #canvas-resize, #canvas { display: none !important; }
         #file-input { display: none; }
         
-        .progress-wrapper { width: 80%; position: relative; margin-top: 20px; }
-        .progress-text { position: absolute; top: -25px; right: 0; color: var(--accent-color); font-weight: bold; font-size: 14px; }
+        .progress-wrapper { width: 80%; position: relative; margin-top: 30px; }
+        .progress-text { position: absolute; top: -22px; right: 0; color: var(--accent-color); font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V25.0 傳世工藝版</span>
+        Live Mirror AI <span class="version-tag">V26.0 UI修正版</span>
     </header>
 
     <div id="start-overlay">
-        <h1 style="color:white; margin-bottom:10px; font-size: 28px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px;">V25.0 比例與字體修正</p>
+        <h1 style="color:white; margin-bottom:10px; font-size: 26px;">👋 歡迎體驗</h1>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V26.0 比例與介面優化</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -100,16 +101,16 @@
     <input type="file" id="file-input" accept="image/*">
 
     <div id="stage-1" class="stage">
-        <div class="viewport">
-            <video id="webcam" playsinline class="mirror" autoplay style="object-fit: cover;"></video>
+        <div class="viewport-container" style="max-height: 55vh;">
+            <video id="webcam" playsinline class="mirror" autoplay style="width: 100%; height: 100%; object-fit: cover;"></video>
         </div>
-        <button class="btn-action" onclick="capturePhoto()" style="max-width: none; width: 90%; height: 60px; font-size: 20px;">📸 拍 照</button>
+        <button class="btn-action" onclick="capturePhoto()" style="max-width: none; width: 85%; font-size: 18px;">📸 拍 照</button>
         <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
     </div>
 
     <div id="stage-2" class="stage">
-        <div class="viewport" style="width: auto; height: auto; max-width: 80%; max-height: 40vh; border-radius: 12px; border: 3px solid var(--accent-color); margin-top: 5px; padding: 5px;">
-            <img id="preview-img" src="" style="width: auto; height: auto; max-width: 100%; max-height: 100%; display: block;">
+        <div class="viewport-container" style="height: 300px; border: 2px solid var(--accent-color); background: #000;">
+            <img id="preview-img" src="" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
         
         <div class="ai-only-section">
@@ -124,7 +125,7 @@
             <div class="panel-title" style="color: #eee;">✍️ 大師題字與裝裱</div>
             <div style="display: flex; flex-direction: column;">
                 <span class="select-label" style="margin-bottom: 5px;">👁️ 文字樣式預覽 (即時)</span>
-                <canvas id="text-preview-canvas" width="400" height="120"></canvas>
+                <canvas id="text-preview-canvas" width="350" height="100"></canvas>
 
                 <div class="select-group" style="margin-bottom: 10px;">
                     <span class="select-label">📜 名言佳句 (選填)</span>
@@ -187,15 +188,15 @@
 
         <div class="ai-only-section" style="margin-bottom: 20px;">
              <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:10px;">✨ 選項 B：保留原圖 (僅裝裱)</h3>
-             <button class="btn-action btn-direct-frame" onclick="finishDirectMode()" style="width:100%; max-width:none;">直接裝裱 (不改變畫風)</button>
+             <button class="btn-action btn-direct-frame" onclick="finishDirectMode()" style="width:100%; max-width:none; padding: 12px 0;">直接裝裱 (不改變畫風)</button>
         </div>
 
-        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認裝裱 (使用上傳圖)</button>
-        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:15px;" onclick="location.reload()">⬅️ 返回首頁</button>
+        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px; padding: 12px 0;">✨ 確認裝裱 (使用上傳圖)</button>
+        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:14px;" onclick="location.reload()">⬅️ 返回首頁</button>
     </div>
 
     <div id="stage-3" class="stage" style="justify-content: center;">
-        <h2 id="loading-text" style="color: var(--accent-color);">⚡ 處理中...</h2>
+        <h2 id="loading-text" style="color: var(--accent-color); font-size: 22px;">⚡ 處理中...</h2>
         <div class="progress-wrapper">
             <span id="progress-percent" class="progress-text">0%</span>
             <div style="width:100%; height:8px; background:#333; border-radius:4px; overflow: hidden;">
@@ -207,16 +208,16 @@
     </div>
 
     <div id="stage-4" class="stage">
-        <h2 style="color: var(--accent-color);">✨ 您的傳世大作</h2>
-        <div class="viewport" style="background: transparent; box-shadow: none; border: none; min-height: auto; height: auto; padding: 10px;">
-            <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: auto; height: auto; max-width: 100%; max-height: 70vh;">
+        <h2 style="color: var(--accent-color); font-size: 22px;">✨ 您的傳世大作</h2>
+        <div class="viewport-container" style="background: transparent; box-shadow: none; border: none; min-height: 300px; height: auto; padding: 10px;">
+            <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: auto; height: auto; max-width: 100%; max-height: 65vh; object-fit: contain;">
         </div>
-        <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
+        <p style="color: var(--accent-color); font-weight: bold; font-size: 16px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
         <div style="font-size: 13px; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; width: 100%; text-align: center;">
             分享連結：
             <div id="qrcode-container" style="margin-top: 10px; background: white; padding: 10px; display: inline-block; border-radius: 12px;"></div>
         </div>
-        <button class="btn-action" onclick="location.reload()" style="background: #333; color:white; font-size:16px; margin-top: 30px; max-width:none; border: 1px solid #555;">🔄 再玩一次</button>
+        <button class="btn-action" onclick="location.reload()" style="background: #333; color:white; font-size:15px; margin-top: 30px; max-width:none; border: 1px solid #555; padding: 12px 0;">🔄 再玩一次</button>
     </div>
 
     <canvas id="canvas-comp"></canvas>
@@ -243,7 +244,7 @@
         applyTextStyle(pCtx, style, fontSize); pCtx.textAlign = 'left'; pCtx.textBaseline = 'middle';
         pCtx.fillText(text.split('\n')[0], 20, 50); 
         if (['comic', 'neon', 'stone'].includes(style)) pCtx.strokeText(text.split('\n')[0], 20, 50);
-        drawSmartSeal(pCtx, signature, sShape, sFont, 380, 80, 400);
+        drawSmartSeal(pCtx, signature, sShape, sFont, 330, 80, 350);
     }
 
     function fillQuote() { const select = document.getElementById('quote-select'); const textarea = document.getElementById('text-main'); if (select.value) { textarea.value = select.value; updatePreview(); } }
@@ -251,13 +252,13 @@
     async function initCameraMode() {
         errorMsg.innerText = "";
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             await listCameras();
             stream.getTracks().forEach(track => track.stop());
             setMode(false);
             document.getElementById('btn-container').style.display = 'none';
             document.getElementById('step-selection').style.display = 'block';
-        } catch (err) { console.error(err); errorMsg.innerText = "啟動失敗：請確認瀏覽器已允許相機權限。"; }
+        } catch (err) { console.error(err); errorMsg.innerText = "啟動失敗：請確認瀏覽器已允許相機權限(NotAllowedError)。"; }
     }
 
     async function listCameras() {
@@ -274,7 +275,11 @@
 
     async function confirmCamera() {
         const deviceId = cameraList.value;
-        try { const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } }); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (err) { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (fatalErr) { alert("相機啟動失敗"); } }
+        // V26: 嘗試獲取較高解析度的相機串流
+        const constraints = { video: { deviceId: { exact: deviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } } };
+        try { const stream = await navigator.mediaDevices.getUserMedia(constraints); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (err) { 
+            try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); video.srcObject = stream; document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-1'); } catch (fatalErr) { alert("相機啟動失敗，請檢查權限設定。"); } 
+        }
     }
 
     const optionsData = { girl: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}], hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}] }, boy: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}], hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}] } };
@@ -284,22 +289,19 @@
 
     function setMode(upload) { isUploadMode = upload; const stage2 = document.getElementById('stage-2'); const uploadBtn = document.getElementById('btn-upload-finish'); if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } }
     function triggerUpload() { document.getElementById('file-input').click(); }
-    // V25: 上傳圖片時也進行比例預處理
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
     function finishUploadMode() { composeFinalImage(previewImg.src, "⚡ 正在為您的照片裝裱..."); }
     function finishDirectMode() { composeFinalImage(previewImg.src, "⚡ 正在為照片裝裱 (原圖)..."); }
 
-    // V25: 統一的圖片預處理函式，確保工作尺寸一致
     function processInputImage(imgElement, isCamera = false) {
-        const MAX_WORK_SIZE = 1024; 
+        const MAX_WORK_SIZE = 1200; 
         let w = imgElement.width; let h = imgElement.height;
-        // 計算縮放比例，保持原圖寬高比
         if (w > h) { if (w > MAX_WORK_SIZE) { h *= MAX_WORK_SIZE / w; w = MAX_WORK_SIZE; } } 
         else { if (h > MAX_WORK_SIZE) { w *= MAX_WORK_SIZE / h; h = MAX_WORK_SIZE; } }
         canvasResize.width = w; canvasResize.height = h;
         const ctx = canvasResize.getContext('2d');
-        if (isCamera) { ctx.translate(w, 0); ctx.scale(-1, 1); } // 相機鏡像
+        if (isCamera) { ctx.translate(w, 0); ctx.scale(-1, 1); }
         ctx.drawImage(imgElement, 0, 0, w, h);
         previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95);
         setMode(!isCamera); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2');
@@ -320,8 +322,14 @@
         let detailPrompt = getDetails(); let fullPrompt = ""; 
         if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`; else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`; else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`; else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`; else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`; else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`; else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`; else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`; 
         
-        // AI 生成保持 768x1024 的長比例
-        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=768&height=1024&seed=${Math.floor(Math.random()*9999)}&nologo=true`; 
+        // V26: 核心修正 - 根據預覽圖的比例決定 AI 生成尺寸
+        const ratio = previewImg.naturalWidth / previewImg.naturalHeight;
+        let aiW, aiH;
+        if (ratio > 1.1) { aiW = 1024; aiH = 768; } // 橫向
+        else if (ratio < 0.9) { aiW = 768; aiH = 1024; } // 直向
+        else { aiW = 1024; aiH = 1024; } // 方形
+
+        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*9999)}&nologo=true`; 
         
         setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中..."); }, 100); 
     }
@@ -341,41 +349,28 @@
 
         baseImg.onload = () => {
             clearTimeout(loadWatchdog);
-            
-            // V25: 核心修正 - 根據圖片實際比例計算畫布與邊框
-            const MAX_FINAL_DIM = 1200; // 最終輸出的最大邊長
-            let workW = baseImg.width;
-            let workH = baseImg.height;
-            // 縮放至合理工作尺寸
+            const MAX_FINAL_DIM = 1200; 
+            let workW = baseImg.width; let workH = baseImg.height;
             if (workW > workH) { if (workW > MAX_FINAL_DIM) { workH *= MAX_FINAL_DIM/workW; workW = MAX_FINAL_DIM; } }
             else { if (workH > MAX_FINAL_DIM) { workW *= MAX_FINAL_DIM/workH; workH = MAX_FINAL_DIM; } }
             
-            // 根據工作尺寸計算邊框厚度 (保持視覺比例一致)
             const baseDim = Math.min(workW, workH);
             let frameThickness = 0; let matThickness = 0;
             if (frameStyle !== 'none') { if(frameStyle.includes('gold') || frameStyle.includes('vintage') || frameStyle.includes('walnut')) frameThickness = baseDim * 0.06; else frameThickness = baseDim * 0.04; if (frameStyle === 'museum_mat') matThickness = baseDim * 0.12; else if (frameStyle === 'gold_classic' || frameStyle === 'silver_antique') matThickness = baseDim * 0.025; }
             const ft = Math.floor(frameThickness); const mt = Math.floor(matThickness); const totalBorder = ft + mt;
             
-            // 設定最終畫布大小
-            canvasComp.width = workW + (totalBorder * 2);
-            canvasComp.height = workH + (totalBorder * 2);
+            canvasComp.width = workW + (totalBorder * 2); canvasComp.height = workH + (totalBorder * 2);
             const ctx = canvasComp.getContext('2d'); const cw = canvasComp.width; const ch = canvasComp.height;
             const contentX = totalBorder; const contentY = totalBorder; const contentW = workW; const contentH = workH;
 
-            // 1. 繪製邊框
             if (frameStyle !== 'none') { applyAdvancedFrame(ctx, frameStyle, cw, ch, ft, mt); }
-            // 2. 繪製圖片 (使用縮放後的尺寸)
             ctx.drawImage(baseImg, 0, 0, baseImg.width, baseImg.height, contentX, contentY, contentW, contentH);
             
-            // 3. V25 修正：繪製順序，確保文字在最上層
-            // 先畫內陰影
             if (frameStyle !== 'none' && frameStyle !== 'neon_cyber') { ctx.shadowColor = "rgba(0,0,0,0.75)"; ctx.shadowBlur = ft*0.8; ctx.shadowOffsetX = ft*0.2; ctx.shadowOffsetY = ft*0.2; ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth = 2; ctx.strokeRect(contentX, contentY, contentW, contentH); ctx.shadowBlur = 0; }
             
-            // 最後畫文字與印章 (確保不被遮擋)
             ctx.save(); ctx.beginPath(); ctx.rect(contentX, contentY, contentW, contentH); ctx.clip();
             if (rawText && textStyle !== 'none') {
                 const lines = rawText.split('\n'); const fontSize = Math.floor(contentW * (textSizeVal / 500)); applyTextStyle(ctx, textStyle, fontSize); ctx.textAlign = 'center'; const lineHeight = fontSize * 1.3; let startY;
-                // V25: 優化置底位置計算，避免貼底
                 if (position === 'top') startY = contentY + fontSize * 2; else if (position === 'center') startY = contentY + (contentH / 2) - ((lines.length * lineHeight) / 2); else startY = contentY + contentH - (lines.length * lineHeight) - (fontSize * 0.8);
                 lines.forEach((line, i) => { let y = startY + (i * lineHeight); ctx.fillText(line, contentX + contentW / 2, y); if (['comic', 'neon', 'stone'].includes(textStyle)) { ctx.strokeText(line, contentX + contentW / 2, y); } });
             }
@@ -390,24 +385,20 @@
 
     function applyAdvancedFrame(ctx, style, w, h, ft, mt) { const total = ft + mt; if (mt > 0) { ctx.fillStyle = '#fdfdfd'; ctx.fillRect(0, 0, w, h); drawNoise(ctx, 0, 0, w, h, 0.04); drawSolidBevel(ctx, ft, ft, w-ft*2, h-ft*2, Math.max(2, mt*0.1), '#ffffff', '#d9d9d9'); } if (ft > 0) { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(total, total, w - total*2, h - total*2); ctx.clip('evenodd'); if (style === 'gold_classic') { let grad = ctx.createLinearGradient(0, 0, w, h); grad.addColorStop(0, '#e6c26e'); grad.addColorStop(0.3, '#bf953f'); grad.addColorStop(0.5, '#fcf6ba'); grad.addColorStop(0.7, '#b38728'); grad.addColorStop(1, '#aa771c'); ctx.fillStyle = grad; ctx.fillRect(0,0,w,h); drawNoise(ctx, 0,0,w,h, 0.06); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.7)', 'rgba(80,60,20,0.7)'); } else if (style === 'wood_walnut') { ctx.fillStyle = '#4a332a'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#2e1e19', 0.4); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.15)', 'rgba(0,0,0,0.6)'); } else if (style === 'ornate_vintage') { ctx.fillStyle = '#3d2b1f'; ctx.fillRect(0,0,w,h); drawWoodTexture(ctx, w, h, '#221100', 0.3); ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=ft*0.3; ctx.strokeStyle = '#d4af37'; ctx.lineWidth = ft * 0.15; ctx.strokeRect(ft*0.3, ft*0.3, w-ft*0.6, h-ft*0.6); ctx.shadowBlur=0; drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,240,200,0.25)', 'rgba(0,0,0,0.85)'); } else if (style === 'neon_cyber') { ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h); ctx.shadowColor = '#00eaff'; ctx.shadowBlur = ft; ctx.strokeStyle = '#ff00de'; ctx.lineWidth = ft*0.1; ctx.strokeRect(ft, ft, w - ft*2, h - ft*2); ctx.shadowBlur = 0; } else if (style === 'gallery_black') { ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.03); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.8)'); } else { ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,w,h); drawNoise(ctx,0,0,w,h,0.05); drawDeepBevel(ctx, 0, 0, w, h, ft, 'rgba(255,255,255,0.4)', 'rgba(0,0,0,0.5)'); } ctx.restore(); } }
     function drawSmartSeal(ctx, name, shape, fontStyle, rightX, bottomY, canvasW) { const baseSize = Math.floor(canvasW * 0.12); const margin = baseSize * 0.3; const x = rightX - baseSize - margin; const y = bottomY - baseSize - margin; const center = baseSize / 2; ctx.save(); ctx.translate(x, y); ctx.shadowColor = "#990000"; ctx.shadowBlur = 4; ctx.fillStyle = "#c21f1f"; ctx.beginPath(); if (shape === 'square') ctx.rect(0, 0, baseSize, baseSize); else if (shape === 'rect') ctx.rect(0, baseSize*0.2, baseSize, baseSize*0.6); else if (shape === 'circle') ctx.arc(center, center, center, 0, Math.PI*2); else if (shape === 'oval') ctx.ellipse(center, center, center, center*0.6, 0, 0, Math.PI*2); else if (shape === 'rounded') { const r = baseSize*0.2; ctx.roundRect(0,0,baseSize,baseSize,r); } ctx.fill(); ctx.shadowBlur = 0; drawNoise(ctx, 0, 0, baseSize, baseSize, 0.15); 
-        
-        // V25: 全面重製字體對應與新增行草
         let fontName = "sans-serif"; let fontWeight = "bold"; let fontStyleCSS = "normal";
         switch(fontStyle) { 
             case 'standard': fontName = '"Microsoft JhengHei", "Heiti TC", sans-serif'; break; 
             case 'serif_bold': fontName = '"Songti SC", "STSong", "serif"'; fontWeight="900"; break; 
             case 'cursive': fontName = '"Kaiti SC", "STKaiti", "KaiTi", cursive'; fontWeight="normal"; break;
-            // V25 新增行草: 使用楷體並加上斜體與特殊效果模擬
             case 'xingcao': fontName = '"Kaiti SC", "STKaiti", "KaiTi", cursive'; fontWeight="normal"; fontStyleCSS="italic"; ctx.shadowColor="rgba(0,0,0,0.3)"; ctx.shadowBlur=2; break; 
             case 'heavy': fontName = '"Arial Black", "Heiti TC", sans-serif'; fontWeight="900"; break; 
             case 'thin': fontName = '"MingLiU", "PMingLiU", serif'; fontWeight="100"; break; 
             case 'old': fontName = '"LiSu", "Kaiti SC", serif'; break; 
-            case 'seal_script': fontName = '"SimSun", "Songti SC", serif'; break; // 網頁無篆書，以宋體模擬結構
+            case 'seal_script': fontName = '"SimSun", "Songti SC", serif'; break; 
             case 'rough': fontName = '"Courier New", monospace'; break; 
             case 'ink_bleed': fontName = '"Kaiti SC", "STKaiti", serif'; ctx.shadowColor="#c21f1f"; ctx.shadowBlur=5; break; 
             case 'modern': fontName = 'Arial, sans-serif'; fontWeight="100"; break; 
         } 
-        
         ctx.fillStyle = "#fdfdfd"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; let fontSize = baseSize * 0.8; 
         ctx.font = `${fontStyleCSS} ${fontWeight} ${fontSize}px ${fontName}`; 
         if (name.length <= 2 || shape === 'rect' || shape === 'oval') { const maxWidth = (shape === 'rect' || shape === 'oval') ? baseSize * 0.9 : baseSize * 0.8; while (ctx.measureText(name).width > maxWidth && fontSize > 10) { fontSize -= 2; ctx.font = `${fontStyleCSS} ${fontWeight} ${fontSize}px ${fontName}`; } ctx.fillText(name, center, center); } 
