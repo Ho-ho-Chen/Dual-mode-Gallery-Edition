@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V36.0 Final</title>
+    <title>Live Mirror AI - V37.0 Force Render</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -77,12 +77,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V36.0 Final</span>
+        Live Mirror AI <span class="version-tag">V37.0 Force</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V36.0 雙通道修復版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V37.0 強制渲染版</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -233,7 +233,15 @@
     const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
     let currentGender = 'girl'; let isUploadMode = false; let loadingTimer;
     let retryCount = 0; const maxRetries = 3;
-    let progressInterval; // V36: Global interval for progress
+
+    // V37: 全局錯誤攔截，防止當機
+    window.onerror = function(msg, url, line, col, error) {
+        console.error("Global Error:", msg, error);
+        // 如果卡在 Loading 畫面，強制跳轉回原圖模式
+        if(document.getElementById('stage-3').style.display === 'flex') {
+            composeDirectly("⚠️ 系統忙碌，已為您切換至快速模式");
+        }
+    };
 
     function updatePreview() {
         const pCanvas = document.getElementById('text-preview-canvas'); const pCtx = pCanvas.getContext('2d');
@@ -340,7 +348,6 @@
         let aiW = width, aiH = height;
         if (ratio > 1.1) { [aiW, aiH] = [height, width]; } 
 
-        // V36: 使用 Flux 模型
         const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*999999)}&nologo=true&model=flux&t=${Date.now()}`; 
         
         const tempImg = new Image();
@@ -370,13 +377,11 @@
             debug.innerText = `伺服器擁塞，極速模式重試 (2/3)...`;
             setTimeout(() => { tryLoadAI(styleKey, 384, 512); }, 1000);
         } else {
-            // V36: 終極救援 - 呼叫本地直通函式
             debug.innerText = "AI 忙線，已切換至原圖裝裱...";
             setTimeout(() => { composeDirectly("⚠️ AI 忙線，已為您裝裱原圖"); }, 1000);
         }
     }
 
-    // V36: 核心 - 強制使用標準 Image 物件處理所有輸入
     function composeFinalImage(sourceImageUrl, loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; 
         document.getElementById('prompt-debug').innerText = "影像合成中...";
@@ -385,21 +390,19 @@
         if (sourceImageUrl.startsWith('http')) { baseImg.crossOrigin = "anonymous"; }
         
         baseImg.onload = () => { processComposition(baseImg); };
-        // V36: 錯誤強制救援
         baseImg.onerror = () => { composeDirectly("⚠️ 影像處理異常，使用原圖備份"); }; 
         baseImg.src = sourceImageUrl;
     }
 
-    // V36: 通道 B - 使用預覽圖 (Data URL)
     function composeDirectly(loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg;
-        // V36: 將 canvasResize 轉為 Image 物件，確保輸入一致性
+        // V37: 直接從 canvasResize 轉為 Image 物件，確保資料一致
         const fallbackImg = new Image();
         fallbackImg.onload = () => { processComposition(fallbackImg); };
-        fallbackImg.src = previewImg.src; // 使用已存在的預覽圖
+        fallbackImg.src = previewImg.src; // 使用預覽圖 DataURL
     }
 
-    // V36: 繪圖核心 (加上 Try-Catch 保護)
+    // V37: 安全的繪圖核心 (Try-Catch)
     function processComposition(imageSource) {
         try {
             const rawText = document.getElementById('text-main').value; const textStyle = document.getElementById('text-style').value; const signature = document.getElementById('text-signature').value; const position = document.getElementById('text-position').value; const frameStyle = document.getElementById('frame-style').value; const textSizeVal = document.getElementById('text-size').value; const sealShape = document.getElementById('seal-shape').value; const sealFont = document.getElementById('seal-font').value;
@@ -436,15 +439,24 @@
             finalImg.style.display = 'block';
             document.getElementById('result-placeholder').style.display = 'none';
             
-            // V36: 停止進度條
+            // V37: 確保清理所有狀態
             clearInterval(progressInterval);
             document.getElementById('progress-bar').style.width = '100%';
             
-            document.getElementById("qrcode-container").innerHTML = ""; new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); switchStage('stage-4');
+            // V37: 強制跳轉 (Watchdog)
+            document.getElementById('loading-text').innerText = "完成！";
+            setTimeout(() => {
+                 document.getElementById("qrcode-container").innerHTML = ""; 
+                 new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); 
+                 switchStage('stage-4');
+            }, 100);
+
         } catch (e) {
             console.error(e);
-            alert("發生未知錯誤，請重新整理。");
-            location.reload();
+            // 如果合成失敗，至少顯示原圖
+            finalImg.src = previewImg.src;
+            finalImg.style.display = 'block';
+            switchStage('stage-4');
         }
     }
 
@@ -474,24 +486,7 @@
     function drawWoodTexture(ctx,w,h,c,a){ctx.save();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.globalAlpha=a;for(let i=0;i<w;i+=3+Math.random()*5){ctx.beginPath();ctx.moveTo(i,0);for(let j=0;j<h;j+=20){ctx.lineTo(i+Math.sin(j*0.02+i)*8+(Math.random()-0.5)*3,j);}ctx.stroke();}ctx.restore();}
     function applyTextStyle(ctx,s,fs){ctx.font=`bold ${fs}px "Microsoft JhengHei",sans-serif`;ctx.lineWidth=fs/12;ctx.shadowBlur=0;ctx.shadowColor='transparent';switch(s){case 'calligraphy':ctx.fillStyle='white';ctx.font=`bold ${fs*1.1}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(0,0,0,0.8)";ctx.shadowBlur=8;break;case 'neon':ctx.fillStyle='#00eaff';ctx.strokeStyle='#ff00de';ctx.shadowColor='#00eaff';ctx.shadowBlur=15;ctx.lineWidth=3;break;case 'comic':ctx.fillStyle='#ffd700';ctx.strokeStyle='black';ctx.lineWidth=6;ctx.font=`900 ${fs}px "Arial Black",sans-serif`;break;case 'cute':ctx.fillStyle='#ff99cc';ctx.font=`bold ${fs}px "Comic Sans MS",cursive`;ctx.shadowColor="white";ctx.shadowBlur=4;break;case 'elegant':ctx.fillStyle='#d4af37';ctx.font=`italic bold ${fs}px serif`;ctx.shadowColor="#222";ctx.shadowBlur=4;break;case 'typewriter':ctx.fillStyle='#00ff00';ctx.font=`${fs}px monospace`;ctx.shadowColor="black";ctx.shadowBlur=2;break;case 'graffiti':ctx.fillStyle='white';ctx.strokeStyle='#ff3300';ctx.lineWidth=4;ctx.font=`900 ${fs*1.1}px sans-serif`;break;case 'headline':ctx.fillStyle='white';ctx.strokeStyle='black';ctx.lineWidth=3;ctx.font=`900 ${fs}px impact,sans-serif`;break;case 'stone':ctx.fillStyle='#888';ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.shadowColor="black";ctx.shadowBlur=2;ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;break;case 'ink':ctx.fillStyle='rgba(0,0,0,0.8)';ctx.font=`bold ${fs}px "Kaiti SC",STKaiti,serif`;ctx.shadowColor="rgba(255,255,255,0.3)";ctx.shadowBlur=4;break;}}
 
-    // V36: 全局變數控制進度條
-    function simulateProgress() { 
-        const bar = document.getElementById('progress-bar'); 
-        const text = document.getElementById('progress-percent'); 
-        const debug = document.getElementById('prompt-debug'); 
-        let w = 0; 
-        progressInterval = setInterval(() => { 
-            if(w>=99) clearInterval(progressInterval); 
-            if(w < 50) w += Math.random() * 5; else if(w < 80) w += Math.random() * 2; else w += Math.random() * 0.5; 
-            w = Math.min(w, 99); 
-            bar.style.width = w + '%'; 
-            text.innerText = Math.floor(w) + '%'; 
-            if(w < 30) debug.innerText = "正在構思畫面細節..."; 
-            else if(w < 60) debug.innerText = "AI 大師揮毫中..."; 
-            else if(w < 90) debug.innerText = "正在進行光影渲染..."; 
-            else debug.innerText = "最後修飾與裝裱..."; 
-        }, 500); 
-    }
+    function simulateProgress() { const bar = document.getElementById('progress-bar'); const text = document.getElementById('progress-percent'); const debug = document.getElementById('prompt-debug'); let w = 0; progressInterval = setInterval(() => { if(w>=99) clearInterval(progressInterval); if(w < 50) w += Math.random() * 5; else if(w < 80) w += Math.random() * 2; else w += Math.random() * 0.5; w = Math.min(w, 99); bar.style.width = w + '%'; text.innerText = Math.floor(w) + '%'; if(w < 30) debug.innerText = "正在構思畫面細節..."; else if(w < 60) debug.innerText = "AI 大師揮毫中..."; else if(w < 90) debug.innerText = "正在進行光影渲染..."; else debug.innerText = "最後修飾與裝裱..."; }, 500); }
     function switchStage(id) { document.querySelectorAll('.stage').forEach(el => { el.style.display = 'none'; el.classList.remove('active'); }); const target = document.getElementById(id); target.style.display = 'flex'; setTimeout(()=>target.classList.add('active'), 10); }
 </script>
 </body>
