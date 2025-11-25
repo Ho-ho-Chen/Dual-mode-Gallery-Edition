@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V38.0 Pure</title>
+    <title>Live Mirror AI - V39.1 Elf</title>
     <style>
         /* M28 視覺傳播：極簡黑金風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -24,39 +24,22 @@
         #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #080808; }
         .placeholder-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
-        .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { padding: 0; height: 45px; line-height: 45px; border-radius: 25px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); width: 100%; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
+        /* V39: 簡化按鈕區，只剩一個 */
+        .btn-group { display: flex; width: 100%; justify-content: center; margin-top: 20px; }
+        .btn-action { padding: 0; height: 50px; line-height: 50px; border-radius: 25px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); width: 100%; max-width: 220px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
         .btn-action:active { transform: scale(0.96); }
-        .btn-upload { background: #333; color: white; border: 1px solid #444; box-shadow: none; }
-        .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); width: 200px; }
-
-        .control-panel { width: 100%; background: #1a1a1a; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .panel-title { font-size: 13px; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
         
-        .ai-only-section { display: block; }
-        .upload-mode .ai-only-section { display: none !important; }
-
-        .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .select-group { display: flex; flex-direction: column; gap: 4px; }
-        .select-label { font-size: 11px; color: #888; margin-left: 2px; font-weight: bold; }
-        select.detail-select { width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
-        select.detail-select:focus { border-color: var(--accent-color); }
-
         #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         select.camera-select { width: 100%; padding: 10px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; font-size: 14px; outline: none; }
         
         .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; padding-bottom: 30px;}
-        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px 5px; cursor: pointer; text-align: center; font-size: 13px; position: relative; overflow: hidden; transition: all 0.2s; }
+        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 15px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; }
         .style-card:active { transform: scale(0.96); background: #444; }
-        .style-real { border: 1px solid var(--accent-color); background: rgba(197, 160, 89, 0.1); }
+        /* V39.1 修改樣式名稱 */
+        .style-elf { border: 1px solid var(--accent-color); background: rgba(197, 160, 89, 0.1); }
         .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
 
-        .gender-toggle { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; }
-        .gender-option { flex: 1; text-align: center; padding: 10px; background: #252525; border-radius: 10px; border: 1px solid #444; cursor: pointer; font-weight: bold; color: #888; font-size: 13px; transition: all 0.3s; }
-        .gender-option.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
-        
         #canvas-comp, #canvas-resize, #canvas { display: none !important; }
-        #file-input { display: none; }
         
         .progress-wrapper { width: 80%; position: relative; margin-top: 30px; }
         .progress-text { position: absolute; top: -22px; right: 0; color: var(--accent-color); font-weight: bold; font-size: 13px; }
@@ -66,15 +49,14 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V38.0 純淨版</span>
+        Live Mirror AI <span class="version-tag">V39.1 Elf</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V38.0 去除裝飾版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V39.1 虛幻精靈版</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
-            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
         </div>
         <div id="step-selection" style="display:none; width:100%; margin-top: 20px;">
             <p style="color:white; margin-bottom:15px;">請選擇鏡頭：</p>
@@ -83,14 +65,12 @@
         </div>
         <p id="error-msg" style="color: #ff5c5c; font-size: 12px; margin-top: 20px; max-width: 80%;"></p>
     </div>
-    
-    <input type="file" id="file-input" accept="image/*">
 
     <div id="stage-1" class="stage">
         <div class="viewport-container" style="max-height: 60vh;">
             <video id="webcam" playsinline class="mirror" autoplay style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
         </div>
-        <button class="btn-action" onclick="capturePhoto()" style="width: 200px; max-width: none;">📸 拍 照</button>
+        <button class="btn-action" onclick="capturePhoto()">📸 拍 照</button>
         <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
     </div>
 
@@ -103,35 +83,19 @@
             <img id="preview-img" src="">
         </div>
         
-        <div class="ai-only-section">
-            <div class="gender-toggle">
-                <div class="gender-option" onclick="switchGender('boy')" id="btn-boy">👦 男生</div>
-                <div class="gender-option selected" onclick="switchGender('girl')" id="btn-girl">👧 女生</div>
-            </div>
-            <div class="control-panel"><div class="panel-title">🎬 導演指令 (AI設定)</div><div class="select-grid"><div class="select-group"><span class="select-label">👗 服裝</span><select id="opt-clothes" class="detail-select"></select></div><div class="select-group"><span class="select-label">💇 髮型</span><select id="opt-hair" class="detail-select"></select></div><div class="select-group"><span class="select-label">👑 頭飾</span><select id="opt-headwear" class="detail-select"></select></div><div class="select-group"><span class="select-label">🤲 手持物品</span><select id="opt-held" class="detail-select"></select></div><div class="select-group"><span class="select-label">📍 地點</span><select id="opt-location" class="detail-select"><option value="">(隨機)</option><option value="in a forest">森林</option><option value="at the beach">海邊</option><option value="in a cyberpunk city">未來城市</option><option value="in an ancient temple">古老廟宇</option><option value="in a classroom">教室</option><option value="in outer space">外太空</option><option value="in a library">圖書館</option><option value="in a flower field">浪漫花海</option><option value="on a snowy mountain">雪山之巔</option><option value="on a concert stage">演唱會舞台</option></select></div><div class="select-group"><span class="select-label">🌤️ 天氣/氛圍</span><select id="opt-weather" class="detail-select"><option value="">(隨機)</option><option value="sunny day, bright lighting">陽光燦爛</option><option value="raining, cinematic lighting">下雨電影感</option><option value="starry night">星空夜晚</option><option value="sunset, golden hour">黃昏金光</option><option value="foggy, mysterious">霧氣神秘</option><option value="cherry blossoms falling">櫻花雨</option><option value="northern lights sky">極光</option><option value="rainbow in sky">彩虹</option><option value="thunderstorm background">雷電交加</option></select></div></div></div>
+        <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:15px; margin-top:10px; text-align:center;">✨ 選擇 AI 風格 (點擊生成)</h3>
+        <div class="style-grid">
+            <div class="style-card style-elf" onclick="generateAI('elf')">🧚 虛幻精靈</div>
+            <div class="style-card style-tao" onclick="generateAI('taoist')">🕊️ 白陽聖潔</div>
+            <div class="style-card" onclick="generateAI('pixar')">🧸 皮克斯風</div>
+            <div class="style-card" onclick="generateAI('ghibli')">🍃 吉卜力風</div>
+            <div class="style-card" onclick="generateAI('cyberpunk')">🌃 賽博龐克</div>
+            <div class="style-card" onclick="generateAI('oil')">🎨 梵谷油畫</div>
+            <div class="style-card" onclick="generateAI('comic')">💥 美式漫畫</div>
+            <div class="style-card" onclick="generateAI('ink')">🖌️ 東方水墨</div>
         </div>
 
-        <div class="ai-only-section">
-            <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:15px; border-top: 1px solid #333; padding-top: 15px;">✨ 選項 A：AI 重繪風格 (點擊生成)</h3>
-            <div class="style-grid">
-                <div class="style-card style-real" onclick="generateAI('real')">📸 真人擬真</div>
-                <div class="style-card style-tao" onclick="generateAI('taoist')">🕊️ 白陽聖潔</div>
-                <div class="style-card" onclick="generateAI('pixar')">🧸 皮克斯風</div>
-                <div class="style-card" onclick="generateAI('ghibli')">🍃 吉卜力風</div>
-                <div class="style-card" onclick="generateAI('cyberpunk')">🌃 賽博龐克</div>
-                <div class="style-card" onclick="generateAI('oil')">🎨 梵谷油畫</div>
-                <div class="style-card" onclick="generateAI('comic')">💥 美式漫畫</div>
-                <div class="style-card" onclick="generateAI('ink')">🖌️ 東方水墨</div>
-            </div>
-        </div>
-
-        <div class="ai-only-section" style="margin-bottom: 20px;">
-             <h3 style="width:100%; font-size:14px; color:#888; margin-bottom:10px;">✨ 選項 B：保留原圖 (下載備份)</h3>
-             <button class="btn-action btn-direct-frame" onclick="finishDirectMode()" style="width:100%; max-width:none;">使用原圖 (不重繪)</button>
-        </div>
-
-        <button id="btn-upload-finish" class="btn-action" onclick="finishUploadMode()" style="display:none; width:100%; max-width:none; margin-bottom: 20px;">✨ 確認 (使用上傳圖)</button>
-        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:14px;" onclick="location.reload()">⬅️ 返回首頁</button>
+        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:14px;" onclick="location.reload()">⬅️ 返回重拍</button>
     </div>
 
     <div id="stage-3" class="stage" style="justify-content: center;">
@@ -146,9 +110,9 @@
     </div>
 
     <div id="stage-4" class="stage">
-        <h2 style="color: var(--accent-color); font-size: 22px;">✨ 完成作品</h2>
+        <h2 style="color: var(--accent-color); font-size: 22px;">✨ 您的專屬作品</h2>
         <div class="viewport-container" style="background: transparent; border: none; min-height: 300px; height: auto; padding: 10px;">
-            <div id="result-placeholder" style="display:block; color:#555;">準備中...</div>
+            <div id="result-placeholder" style="display:block; color:#555;">正在裝裱...</div>
             <img id="final-result" src="" style="box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: auto; height: auto; max-width: 100%; max-height: 65vh;">
         </div>
         <p style="color: var(--accent-color); font-weight: bold; font-size: 16px; margin-top: 15px;">👇 長按圖片儲存 👇</p>
@@ -169,10 +133,8 @@
 <script>
     const video = document.getElementById('webcam'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
     const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
-    let currentGender = 'girl'; let isUploadMode = false; let loadingTimer;
-    let retryCount = 0; const maxRetries = 3;
+    let loadingTimer; let retryCount = 0; const maxRetries = 3; let progressInterval;
 
-    // V37: 全局錯誤攔截
     window.onerror = function(msg, url, line, col, error) {
         console.error("Global Error:", msg, error);
         if(document.getElementById('stage-3').style.display === 'flex') {
@@ -186,7 +148,6 @@
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             await listCameras();
             stream.getTracks().forEach(track => track.stop());
-            setMode(false);
             document.getElementById('btn-container').style.display = 'none';
             document.getElementById('step-selection').style.display = 'block';
         } catch (err) { console.error(err); errorMsg.innerText = "啟動失敗：請確認瀏覽器已允許相機權限(NotAllowedError)。"; }
@@ -212,25 +173,6 @@
         }
     }
 
-    const optionsData = { girl: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing princess dress", txt:"夢幻公主裙"}, {val:"wearing qipao dress", txt:"旗袍"}, {val:"wearing school uniform", txt:"水手服/制服"}, {val:"wearing business suit", txt:"西裝/套裝"}, {val:"wearing casual t-shirt", txt:"休閒 T恤"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing witch robe", txt:"女巫袍"}, {val:"wearing yoga outfit", txt:"瑜珈服"}], hair: [{val:"", txt:"(預設)"}, {val:"long curly hair", txt:"長捲髮"}, {val:"short bob hair", txt:"俏麗短髮"}, {val:"ponytail", txt:"馬尾"}, {val:"straight long hair", txt:"黑長直"}, {val:"twin tails", txt:"雙馬尾"}, {val:"braided hair", txt:"麻花辮"}, {val:"hair bun", txt:"包包頭"}, {val:"hime cut", txt:"公主切"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a flower hairpin", txt:"花朵髮簪"}, {val:"wearing a crown", txt:"皇冠"}, {val:"wearing cat ears", txt:"貓耳"}, {val:"wearing a beret", txt:"畫家帽"}, {val:"wearing a veil", txt:"頭紗"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing a halo", txt:"天使光環"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a lotus flower", txt:"拿著蓮花"}, {val:"holding a magic wand", txt:"魔法棒"}, {val:"holding bubble tea", txt:"珍珠奶茶"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a fan", txt:"拿著扇子"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a bouquet", txt:"捧著花束"}] }, boy: { clothes: [{val:"", txt:"(預設)"}, {val:"wearing white hanfu", txt:"漢服/古裝"}, {val:"wearing business suit", txt:"西裝/正裝"}, {val:"wearing doctor coat", txt:"醫師袍"}, {val:"wearing leather jacket", txt:"帥氣皮衣"}, {val:"wearing basketball jersey", txt:"籃球衣"}, {val:"wearing casual hoodie", txt:"連帽衫"}, {val:"wearing cyberpunk armor", txt:"科技戰甲"}, {val:"wearing tactical vest", txt:"戰術背心"}, {val:"wearing tuxedo", txt:"燕尾服"}], hair: [{val:"", txt:"(預設)"}, {val:"short hair", txt:"俐落短髮"}, {val:"middle part hair", txt:"韓系中分"}, {val:"slicked back hair", txt:"油頭"}, {val:"buzz cut", txt:"平頭/光頭"}, {val:"spikey hair", txt:"刺蝟頭"}, {val:"long hair", txt:"藝術長髮"}, {val:"dreadlocks", txt:"雷鬼髒辮"}, {val:"undercut", txt:"兩側推高"}], headwear: [{val:"", txt:"(無)"}, {val:"wearing glasses", txt:"眼鏡"}, {val:"wearing a baseball cap", txt:"棒球帽"}, {val:"wearing a fedora", txt:"紳士帽"}, {val:"wearing a bandana", txt:"頭巾"}, {val:"wearing headphones", txt:"耳機"}, {val:"wearing vr goggles", txt:"VR眼鏡"}, {val:"wearing a halo", txt:"天使光環"}, {val:"wearing a crown", txt:"國王皇冠"}], held: [{val:"", txt:"(無)"}, {val:"holding a book", txt:"拿著書"}, {val:"holding a sword", txt:"拿著劍"}, {val:"holding a guitar", txt:"抱著吉他"}, {val:"holding a camera", txt:"拿著相機"}, {val:"holding a basketball", txt:"拿著籃球"}, {val:"holding a coffee cup", txt:"拿著咖啡"}, {val:"holding a laptop", txt:"拿著筆電"}, {val:"holding a microphone", txt:"拿著麥克風"}] } };
-    function updateOptions(gender) { const data = optionsData[gender]; const populate = (id, items) => { const select = document.getElementById(id); select.innerHTML = ""; items.forEach(item => { const opt = document.createElement("option"); opt.value = item.val; opt.innerText = item.txt; select.appendChild(opt); }); }; populate('opt-clothes', data.clothes); populate('opt-hair', data.hair); populate('opt-headwear', data.headwear); populate('opt-held', data.held); }
-    function switchGender(g) { currentGender = g; document.getElementById('btn-boy').classList.toggle('selected', g==='boy'); document.getElementById('btn-girl').classList.toggle('selected', g==='girl'); updateOptions(g); }
-    window.onload = () => { updateOptions('girl'); };
-
-    function setMode(upload) { 
-        isUploadMode = upload; 
-        const stage2 = document.getElementById('stage-2'); 
-        const uploadBtn = document.getElementById('btn-upload-finish'); 
-        previewImg.style.display = 'none';
-        document.getElementById('preview-placeholder').style.display = 'flex';
-        if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } 
-    }
-    function triggerUpload() { document.getElementById('file-input').click(); }
-    document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
-    
-    function finishUploadMode() { composeDirectly("⚡ 正在處理..."); }
-    function finishDirectMode() { composeDirectly("⚡ 正在處理 (原圖)..."); }
-
     function processInputImage(imgElement, isCamera = false) {
         const MAX_WORK_SIZE = 1200; 
         let w = imgElement.width; let h = imgElement.height;
@@ -243,15 +185,14 @@
         previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95);
         previewImg.style.display = 'block';
         document.getElementById('preview-placeholder').style.display = 'none';
-        setMode(!isCamera); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2');
+        document.getElementById('start-overlay').style.display = 'none'; 
+        switchStage('stage-2');
     }
 
     function capturePhoto() { processInputImage(video, true); }
 
-    function getDetails() { const ids = ['opt-clothes', 'opt-hair', 'opt-headwear', 'opt-held', 'opt-location', 'opt-weather']; let details = []; ids.forEach(id => { const val = document.getElementById(id).value; if(val) details.push(val); }); return details.join(", "); }
-    
+    // V39: 簡化後的 AI 生成，移除性別與細節，使用通用 Prompt
     function generateAI(styleKey) { 
-        if (isUploadMode) return; 
         switchStage('stage-3');
         document.getElementById('loading-text').innerText = "⚡ AI 繪圖中...";
         simulateProgress();
@@ -260,9 +201,17 @@
     }
 
     function tryLoadAI(styleKey, width, height) {
-        let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; 
-        let detailPrompt = getDetails(); let fullPrompt = ""; 
-        if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`; else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`; else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`; else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`; else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`; else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`; else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`; else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`; 
+        // V39.1: 修改 Prompt
+        let fullPrompt = ""; 
+        if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style portrait, highly detailed, studio lighting, big eyes, 8k`; 
+        else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait, hayao miyazaki style, watercolor background, high quality`; 
+        else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait, neon lights, mechanical parts, futuristic city background, realistic`; 
+        else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait, thick brushstrokes, artistic, starry night background`; 
+        else if(styleKey === 'comic') fullPrompt = `american comic superhero portrait, bold lines, halftone dots, marvel style`; 
+        else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait, black and white, sumi-e, artistic, red stamp`; 
+        // V39.1: 新增虛幻精靈 Prompt
+        else if(styleKey === 'elf') fullPrompt = `(masterpiece), best quality, ethereal fantasy portrait, beautiful elf spirit with pointed ears, glowing skin, magical forest background with bioluminescent lights, dreamy atmosphere, highly detailed, 8k`; 
+        else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait, righteous aura, ethereal atmosphere, soft lighting, hd, 8k, hanfu`; 
         
         const ratio = previewImg.naturalWidth / previewImg.naturalHeight;
         let aiW = width, aiH = height;
@@ -273,7 +222,7 @@
         const tempImg = new Image();
         tempImg.crossOrigin = "anonymous";
         
-        const watchdog = setTimeout(() => { handleAILoadError(styleKey, "超時"); }, 45000);
+        const watchdog = setTimeout(() => { handleAILoadError(styleKey, "超時"); }, 60000);
 
         tempImg.onload = () => {
             clearTimeout(watchdog);
@@ -304,7 +253,7 @@
 
     function composeFinalImage(sourceImageUrl, loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; 
-        document.getElementById('prompt-debug').innerText = "影像準備中...";
+        document.getElementById('prompt-debug').innerText = "影像合成中...";
         
         const baseImg = new Image();
         if (sourceImageUrl.startsWith('http')) { baseImg.crossOrigin = "anonymous"; }
@@ -323,9 +272,9 @@
         }, 100);
     }
 
+    // V39: 極簡合成 (純圖，無邊框文字)
     function processComposition(imageSource) {
         try {
-            // V38: 移除邊框/文字/印章的參數獲取與繪製
             const workW = imageSource.width;
             const workH = imageSource.height;
 
@@ -333,14 +282,13 @@
             canvasComp.height = workH;
             const ctx = canvasComp.getContext('2d');
 
-            // 簡單直接繪製圖片，無裝飾
+            // 簡單直接繪製圖片
             ctx.drawImage(imageSource, 0, 0);
             
             finalImg.src = canvasComp.toDataURL('image/png'); 
             finalImg.style.display = 'block';
             document.getElementById('result-placeholder').style.display = 'none';
             
-            // 停止進度條
             if(typeof progressInterval !== 'undefined') clearInterval(progressInterval);
             document.getElementById('progress-bar').style.width = '100%';
             
