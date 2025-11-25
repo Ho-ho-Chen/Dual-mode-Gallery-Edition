@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V30.0 Fix</title>
+    <title>Live Mirror AI - V31.0 Auto-Retry</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -20,26 +20,13 @@
 
         .viewport-container { width: 100%; background: #000; border-radius: 12px; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; flex: none; border: 1px solid #333; min-height: 250px; }
         
-        /* 預設隱藏圖片 */
         #preview-img, #final-result { width: 100%; height: 100%; object-fit: contain; display: none; }
-        
-        /* 佔位符 */
         #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #080808; }
         .placeholder-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
         .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { 
-            padding: 0; height: 45px; line-height: 45px;
-            border-radius: 25px; border: none; 
-            background: linear-gradient(135deg, var(--accent-color), #aa8a2e); 
-            color: #000; font-size: 15px; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); 
-            width: 100%; max-width: 160px; 
-            display: flex; align-items: center; justify-content: center; gap: 5px; 
-            transition: transform 0.1s; outline: none;
-        }
+        .btn-action { padding: 0; height: 45px; line-height: 45px; border-radius: 25px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); width: 100%; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
         .btn-action:active { transform: scale(0.96); }
-        
         .btn-upload { background: #333; color: white; border: 1px solid #444; box-shadow: none; }
         .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); width: 200px; }
 
@@ -90,12 +77,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V30.0 核心修正</span>
+        Live Mirror AI <span class="version-tag">V31.0 容錯版</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V30.0 影像載入修復版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V31.0 自動救援機制</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -245,6 +232,8 @@
     const video = document.getElementById('webcam'), previewImg = document.getElementById('preview-img'), finalImg = document.getElementById('final-result'), cameraList = document.getElementById('camera-list'), errorMsg = document.getElementById('error-msg');
     const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
     let currentGender = 'girl'; let isUploadMode = false; let loadingTimer;
+    // V31: 定義重試變數
+    let retryCount = 0; const maxRetries = 3;
 
     function updatePreview() {
         const pCanvas = document.getElementById('text-preview-canvas'); const pCtx = pCanvas.getContext('2d');
@@ -304,28 +293,17 @@
         isUploadMode = upload; 
         const stage2 = document.getElementById('stage-2'); 
         const uploadBtn = document.getElementById('btn-upload-finish'); 
-        
-        // V30 修正：模式切換時，先隱藏圖片，顯示佔位符
         previewImg.style.display = 'none';
         document.getElementById('preview-placeholder').style.display = 'flex';
-
-        if (isUploadMode) { 
-            stage2.classList.add('upload-mode'); 
-            uploadBtn.style.display = 'flex'; 
-            previewImg.classList.remove('mirror'); 
-        } else { 
-            stage2.classList.remove('upload-mode'); 
-            uploadBtn.style.display = 'none'; 
-            previewImg.classList.add('mirror'); 
-        } 
+        if (isUploadMode) { stage2.classList.add('upload-mode'); uploadBtn.style.display = 'flex'; previewImg.classList.remove('mirror'); } else { stage2.classList.remove('upload-mode'); uploadBtn.style.display = 'none'; previewImg.classList.add('mirror'); } 
     }
+    
     function triggerUpload() { document.getElementById('file-input').click(); }
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
     function finishUploadMode() { composeFinalImage(previewImg.src, "⚡ 正在為您的照片裝裱..."); }
     function finishDirectMode() { composeFinalImage(previewImg.src, "⚡ 正在為照片裝裱 (原圖)..."); }
 
-    // V30 修正：統一的影像處理流程，確保顯示圖片
     function processInputImage(imgElement, isCamera = false) {
         const MAX_WORK_SIZE = 1200; 
         let w = imgElement.width; let h = imgElement.height;
@@ -336,11 +314,8 @@
         if (isCamera) { ctx.translate(w, 0); ctx.scale(-1, 1); }
         ctx.drawImage(imgElement, 0, 0, w, h);
         previewImg.src = canvasResize.toDataURL('image/jpeg', 0.95);
-        
-        // V30: 核心修正 - 強制隱藏佔位符，顯示圖片
-        document.getElementById('preview-placeholder').style.display = 'none';
         previewImg.style.display = 'block';
-        
+        document.getElementById('preview-placeholder').style.display = 'none';
         setMode(!isCamera); document.getElementById('start-overlay').style.display = 'none'; switchStage('stage-2');
     }
 
@@ -353,37 +328,76 @@
         switchStage('stage-3');
         document.getElementById('loading-text').innerText = "⚡ AI 繪圖中...";
         simulateProgress();
+        
+        // V31: 重置重試計數
+        retryCount = 0;
+        tryLoadAI(styleKey);
+    }
 
+    // V31: 獨立的 AI 載入與重試函式
+    function tryLoadAI(styleKey) {
         let genderBase = currentGender === 'boy' ? "handsome man, male" : "beautiful woman, female"; 
         let detailPrompt = getDetails(); let fullPrompt = ""; 
         if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style ${genderBase}, ${detailPrompt}, studio lighting, big eyes, 8k`; else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait of ${genderBase}, ${detailPrompt}, hayao miyazaki style, watercolor background`; else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait of ${genderBase}, ${detailPrompt}, neon lights, mechanical parts, futuristic city`; else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait of ${genderBase}, ${detailPrompt}, thick brushstrokes, artistic, starry night`; else if(styleKey === 'comic') fullPrompt = `american comic superhero ${genderBase}, ${detailPrompt}, bold lines, halftone dots, marvel style`; else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait of ${genderBase}, ${detailPrompt}, black and white, sumi-e, artistic, red stamp`; else if(styleKey === 'real') fullPrompt = `(masterpiece), best quality, realistic photo of a ${genderBase}, ${detailPrompt}, highly detailed face, dslr, 8k, raw photo, soft lighting, looking at camera`; else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait of ${genderBase}, ${detailPrompt}, righteous aura, ethereal atmosphere, soft lighting, hd, 8k`; 
         
         const ratio = previewImg.naturalWidth / previewImg.naturalHeight;
         let aiW, aiH;
-        if (ratio > 1.1) { aiW = 1024; aiH = 768; }
-        else if (ratio < 0.9) { aiW = 768; aiH = 1024; }
-        else { aiW = 1024; aiH = 1024; }
+        if (ratio > 1.1) { aiW = 1024; aiH = 768; } else if (ratio < 0.9) { aiW = 768; aiH = 1024; } else { aiW = 1024; aiH = 1024; }
 
-        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*9999)}&nologo=true`; 
+        // 使用隨機種子，確保每次 URL 不同
+        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*999999)}&nologo=true`; 
         
-        setTimeout(() => { composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中..."); }, 100); 
+        // V31: 在此進行預載與錯誤處理，而非在 compose 中
+        const tempImg = new Image();
+        tempImg.crossOrigin = "anonymous";
+        
+        // V31: 60秒超時
+        const watchdog = setTimeout(() => { 
+            handleAILoadError(styleKey, "超時");
+        }, 60000);
+
+        tempImg.onload = () => {
+            clearTimeout(watchdog);
+            composeFinalImage(aiUrl, "⚡ AI 繪圖與裝裱中...");
+        };
+
+        tempImg.onerror = () => {
+            clearTimeout(watchdog);
+            handleAILoadError(styleKey, "載入失敗");
+        };
+
+        tempImg.src = aiUrl;
+    }
+
+    // V31: 重試邏輯控制器
+    function handleAILoadError(styleKey, reason) {
+        retryCount++;
+        const debug = document.getElementById('prompt-debug');
+        
+        if (retryCount <= maxRetries) {
+            debug.innerText = `連線不穩 (${reason})，正在重試 ${retryCount}/${maxRetries}...`;
+            console.log(`Retry ${retryCount}: ${reason}`);
+            // 等待 1 秒後重試
+            setTimeout(() => { tryLoadAI(styleKey); }, 1500);
+        } else {
+            alert("伺服器忙碌或網路不穩，請稍後再試。(API Error)");
+            location.reload();
+        }
     }
 
     function composeFinalImage(sourceImageUrl, loadingMsg) {
-        switchStage('stage-3'); 
+        // switchStage('stage-3'); // 已經在 stage 3 了
         document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; 
-        document.getElementById('prompt-debug').innerText = "影像處理中...";
-        simulateProgress();
+        document.getElementById('prompt-debug').innerText = "影像合成中...";
+        // simulateProgress(); // 已經在跑了
 
         const rawText = document.getElementById('text-main').value; const textStyle = document.getElementById('text-style').value; const signature = document.getElementById('text-signature').value; const position = document.getElementById('text-position').value; const frameStyle = document.getElementById('frame-style').value; const textSizeVal = document.getElementById('text-size').value; const sealShape = document.getElementById('seal-shape').value; const sealFont = document.getElementById('seal-font').value;
         
         const baseImg = new Image();
+        // V27: AI圖要跨域，本機圖不用
         if (sourceImageUrl.startsWith('http')) { baseImg.crossOrigin = "anonymous"; }
         
-        const loadWatchdog = setTimeout(() => { if(!baseImg.complete) { baseImg.src = ""; alert("連線超時，請檢查網路或重試。"); location.reload(); } }, 45000);
-
         baseImg.onload = () => {
-            clearTimeout(loadWatchdog);
             const MAX_FINAL_DIM = 1200; 
             let workW = baseImg.width; let workH = baseImg.height;
             if (workW > workH) { if (workW > MAX_FINAL_DIM) { workH *= MAX_FINAL_DIM/workW; workW = MAX_FINAL_DIM; } }
@@ -413,13 +427,13 @@
             ctx.restore();
 
             finalImg.src = canvasComp.toDataURL('image/png'); 
-            // V30: 最終結果強制顯示
             finalImg.style.display = 'block';
             document.getElementById('result-placeholder').style.display = 'none';
             
             document.getElementById("qrcode-container").innerHTML = ""; new QRCode(document.getElementById("qrcode-container"), { text: window.location.href, width: 120, height: 120 }); switchStage('stage-4');
         };
-        baseImg.onerror = () => { clearTimeout(loadWatchdog); alert("圖片載入失敗 (API Error)，請重試。"); location.reload(); }; 
+        // V31: 這裡的 error 只會發生在本機圖片處理失敗，AI 圖片在外面已經處理過了
+        baseImg.onerror = () => { alert("影像處理失敗，請重試。"); location.reload(); }; 
         baseImg.src = sourceImageUrl;
     }
 
