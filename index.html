@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V34.0 Safe</title>
+    <title>Live Mirror AI - V35.0 Final</title>
     <style>
         /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
@@ -77,12 +77,12 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V34.0 Safe</span>
+        Live Mirror AI <span class="version-tag">V35.0 救贖版</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V34.0 雙通道保險版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V35.0 雙通道修復</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
             <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
@@ -299,7 +299,7 @@
     function triggerUpload() { document.getElementById('file-input').click(); }
     document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
     
-    // V34: 不傳入 src 參數，改為讓 compose 直接抓本地 DOM 元素
+    // V35: 強制呼叫通道 B
     function finishUploadMode() { composeDirectly("⚡ 正在為您的照片裝裱..."); }
     function finishDirectMode() { composeDirectly("⚡ 正在為照片裝裱 (原圖)..."); }
 
@@ -340,7 +340,6 @@
         let aiW = width, aiH = height;
         if (ratio > 1.1) { [aiW, aiH] = [height, width]; } 
 
-        // V34: 增加 model=flux 提升品質與速度
         const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*999999)}&nologo=true&model=flux&t=${Date.now()}`; 
         
         const tempImg = new Image();
@@ -370,33 +369,32 @@
             debug.innerText = `伺服器擁塞，極速模式重試 (2/3)...`;
             setTimeout(() => { tryLoadAI(styleKey, 384, 512); }, 1000);
         } else {
-            // V34: 終極救援 - 呼叫本地直通函式
             debug.innerText = "AI 忙線，已切換至原圖裝裱...";
             setTimeout(() => { composeDirectly("⚠️ AI 忙線，已為您裝裱原圖"); }, 1000);
         }
     }
 
-    // V34: 雙通道之通道A (網路圖片)
     function composeFinalImage(sourceImageUrl, loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg || "⚡ 處理中..."; 
         document.getElementById('prompt-debug').innerText = "影像合成中...";
         
         const baseImg = new Image();
-        baseImg.crossOrigin = "anonymous";
+        if (sourceImageUrl.startsWith('http')) { baseImg.crossOrigin = "anonymous"; }
         
         baseImg.onload = () => { processComposition(baseImg); };
         baseImg.onerror = () => { composeDirectly("⚠️ 影像處理異常，使用原圖備份"); }; 
         baseImg.src = sourceImageUrl;
     }
 
-    // V34: 雙通道之通道B (本地直通，不經過 Image loading)
+    // V35: 雙通道之通道B - 直接讀取 canvasResize (已存在記憶體的影像)，絕對不會跨域或讀取失敗
     function composeDirectly(loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg;
-        // 直接使用 canvasResize 作為影像來源 (它已經有圖了)
-        processComposition(canvasResize);
+        // 使用 setTimeout 讓瀏覽器有時間更新 UI 文字，然後再執行高負載運算
+        setTimeout(() => {
+            processComposition(canvasResize); 
+        }, 100);
     }
 
-    // V34: 共用合成邏輯
     function processComposition(imageSource) {
         const rawText = document.getElementById('text-main').value; const textStyle = document.getElementById('text-style').value; const signature = document.getElementById('text-signature').value; const position = document.getElementById('text-position').value; const frameStyle = document.getElementById('frame-style').value; const textSizeVal = document.getElementById('text-size').value; const sealShape = document.getElementById('seal-shape').value; const sealFont = document.getElementById('seal-font').value;
         
