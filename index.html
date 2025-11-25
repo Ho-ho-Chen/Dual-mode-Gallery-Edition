@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Live Mirror AI - V40.0 Turbo</title>
+    <title>Live Mirror AI - V41.0 Final Fix</title>
     <style>
-        /* M28 視覺傳播：極簡黑金風格 */
+        /* M28 視覺傳播：黑金藝廊風格 */
         :root { --bg-color: #050505; --panel-bg: #111111; --accent-color: #c5a059; --text-accent: #ff6b6b; --text-primary: #e0e0e0; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Microsoft JhengHei", sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -24,20 +24,46 @@
         #preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #080808; }
         .placeholder-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 
-        .btn-group { display: flex; width: 100%; justify-content: center; margin-top: 20px; }
-        .btn-action { padding: 0; height: 50px; line-height: 50px; border-radius: 25px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); width: 100%; max-width: 220px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
+        .btn-group { display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 20px; }
+        .btn-action { padding: 0; height: 45px; line-height: 45px; border-radius: 25px; border: none; background: linear-gradient(135deg, var(--accent-color), #aa8a2e); color: #000; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); width: 100%; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.1s; outline: none; }
         .btn-action:active { transform: scale(0.96); }
+        .btn-upload { background: #333; color: white; border: 1px solid #444; box-shadow: none; }
+        .btn-direct-frame { background: linear-gradient(135deg, #ff6b6b, #c0392b); color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); width: 200px; }
+
+        .control-panel { width: 100%; background: #1a1a1a; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+        .panel-title { font-size: 13px; color: var(--accent-color); margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; text-transform: uppercase; }
         
+        .ai-only-section { display: block; }
+        .upload-mode .ai-only-section { display: none !important; }
+
+        #text-preview-canvas { width: 100%; height: 80px; background: #222; border: 1px dashed #444; border-radius: 8px; margin-bottom: 10px; display: block; }
+        .detail-textarea { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; resize: none; font-family: inherit; }
+        .detail-input { width: 100%; padding: 10px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; }
+        .detail-input:focus, .detail-textarea:focus { border-color: var(--accent-color); }
+
+        .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .select-group { display: flex; flex-direction: column; gap: 4px; }
+        .select-label { font-size: 11px; color: #888; margin-left: 2px; font-weight: bold; }
+        select.detail-select { width: 100%; padding: 8px; background: #252525; color: white; border: 1px solid #444; border-radius: 8px; font-size: 13px; outline: none; appearance: none; transition: border 0.3s; }
+        select.detail-select:focus { border-color: var(--accent-color); }
+
+        .slider-container { display: flex; align-items: center; gap: 10px; }
+        input[type=range] { flex: 1; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -6px; border: 2px solid #fff; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
+        #text-size-display { color: var(--accent-color); font-size: 12px; width: 30px; text-align: right; }
+
         #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         select.camera-select { width: 100%; padding: 10px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; font-size: 14px; outline: none; }
         
         .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; padding-bottom: 30px;}
-        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 15px 5px; cursor: pointer; text-align: center; font-size: 14px; position: relative; overflow: hidden; transition: all 0.2s; }
+        .style-card { background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px 5px; cursor: pointer; text-align: center; font-size: 13px; position: relative; overflow: hidden; transition: all 0.2s; }
         .style-card:active { transform: scale(0.96); background: #444; }
         .style-elf { border: 1px solid var(--accent-color); background: rgba(197, 160, 89, 0.1); }
         .style-tao { border: 1px solid #fff; background: linear-gradient(45deg, #2a2a2a, #555); }
 
         #canvas-comp, #canvas-resize, #canvas { display: none !important; }
+        #file-input { display: none; }
         
         .progress-wrapper { width: 80%; position: relative; margin-top: 30px; }
         .progress-text { position: absolute; top: -22px; right: 0; color: var(--accent-color); font-weight: bold; font-size: 13px; }
@@ -47,14 +73,15 @@
 
 <div id="app-window">
     <header>
-        Live Mirror AI <span class="version-tag">V40.0 Turbo</span>
+        Live Mirror AI <span class="version-tag">V41.0 零延遲</span>
     </header>
 
     <div id="start-overlay">
         <h1 style="color:white; margin-bottom:10px; font-size: 24px;">👋 歡迎體驗</h1>
-        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V40.0 穩定極速版</p>
+        <p style="color:#aaa; margin-bottom:30px; font-size: 14px;">V41.0 穩定直通版</p>
         <div id="btn-container" class="btn-group">
             <button class="btn-action" onclick="initCameraMode()">📸 啟動相機</button>
+            <button class="btn-action btn-upload" onclick="triggerUpload()">📁 上傳照片</button>
         </div>
         <div id="step-selection" style="display:none; width:100%; margin-top: 20px;">
             <p style="color:white; margin-bottom:15px;">請選擇鏡頭：</p>
@@ -70,7 +97,7 @@
         <div class="viewport-container" style="max-height: 60vh;">
             <video id="webcam" playsinline class="mirror" autoplay style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
         </div>
-        <button class="btn-action" onclick="capturePhoto()">📸 拍 照</button>
+        <button class="btn-action" onclick="capturePhoto()" style="width: 200px; max-width: none;">📸 拍 照</button>
         <p style="margin-top:20px; font-size:14px; color:#666; cursor:pointer; text-decoration: underline;" onclick="location.reload()">[返回首頁]</p>
     </div>
 
@@ -95,7 +122,7 @@
             <div class="style-card" onclick="generateAI('ink')">🖌️ 東方水墨</div>
         </div>
 
-        <button style="margin-top:5px; background:transparent; border:none; color:#666; font-size:14px;" onclick="location.reload()">⬅️ 返回重拍</button>
+        <button class="btn-action btn-direct-frame" onclick="finishDirectMode()" style="width:100%; max-width:none; margin-top:20px;">直接裝裱 (不重繪)</button>
     </div>
 
     <div id="stage-3" class="stage" style="justify-content: center;">
@@ -135,10 +162,11 @@
     const canvasComp = document.getElementById('canvas-comp'); const canvasResize = document.getElementById('canvas-resize');
     let loadingTimer; let retryCount = 0; const maxRetries = 2; let progressInterval;
 
+    // V41: 全局錯誤攔截
     window.onerror = function(msg, url, line, col, error) {
         console.error("Global Error:", msg, error);
         if(document.getElementById('stage-3').style.display === 'flex') {
-            composeDirectly("⚠️ 系統忙碌，已為您切換至快速模式");
+            composeDirectly("⚠️ 系統切換至備用模式");
         }
     };
 
@@ -190,41 +218,40 @@
     }
 
     function capturePhoto() { processInputImage(video, true); }
+    function triggerUpload() { document.getElementById('file-input').click(); }
+    document.getElementById('file-input').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { processInputImage(img); }; img.src = event.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
+    function finishDirectMode() { composeDirectly("⚡ 正在為照片裝裱 (原圖)..."); }
 
     function generateAI(styleKey) { 
         switchStage('stage-3');
         document.getElementById('loading-text').innerText = "⚡ AI 繪圖中...";
         simulateProgress();
         retryCount = 0;
-        // V40: 使用標準尺寸 768x1024 (不強制高清) 以提升成功率
         tryLoadAI(styleKey, 768, 1024);
     }
 
     function tryLoadAI(styleKey, width, height) {
         let fullPrompt = ""; 
-        // V40: 優化 Prompt，減少複雜度
         if(styleKey === 'pixar') fullPrompt = `cute 3d pixar style portrait, highly detailed, studio lighting, big eyes, 8k`; 
-        else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait, hayao miyazaki style, watercolor background`; 
-        else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait, neon lights, mechanical parts, futuristic city`; 
-        else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait, thick brushstrokes, artistic, starry night`; 
+        else if(styleKey === 'ghibli') fullPrompt = `studio ghibli anime portrait, hayao miyazaki style, watercolor background, high quality`; 
+        else if(styleKey === 'cyberpunk') fullPrompt = `cyberpunk portrait, neon lights, mechanical parts, futuristic city background, realistic`; 
+        else if(styleKey === 'oil') fullPrompt = `van gogh oil painting portrait, thick brushstrokes, artistic, starry night background`; 
         else if(styleKey === 'comic') fullPrompt = `american comic superhero portrait, bold lines, halftone dots, marvel style`; 
-        else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait, black and white, sumi-e, red stamp`; 
+        else if(styleKey === 'ink') fullPrompt = `chinese ink wash painting portrait, black and white, sumi-e, artistic, red stamp`; 
         else if(styleKey === 'elf') fullPrompt = `(masterpiece), ethereal fantasy portrait, beautiful elf spirit, pointed ears, glowing skin, magical forest`; 
-        else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait, righteous aura, white hanfu, ethereal`; 
+        else if(styleKey === 'taoist') fullPrompt = `(masterpiece), traditional chinese ancient style portrait, righteous aura, ethereal atmosphere, soft lighting, hd, 8k, hanfu`; 
         
         const ratio = previewImg.naturalWidth / previewImg.naturalHeight;
         let aiW = width, aiH = height;
         if (ratio > 1.1) { [aiW, aiH] = [height, width]; } 
 
-        // V40: 移除 model=flux，使用預設模型 (通常較快)
-        // V40: 加入 nologo=true 和 cache busting
-        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=false&t=${Date.now()}`; 
+        const aiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${aiW}&height=${aiH}&seed=${Math.floor(Math.random()*999999)}&nologo=true&model=flux&t=${Date.now()}`; 
         
         const tempImg = new Image();
         tempImg.crossOrigin = "anonymous";
         
-        // V40: 45秒超時，給予更多時間
-        const watchdog = setTimeout(() => { handleAILoadError(styleKey, "超時"); }, 45000);
+        // V41: 縮短超時時間，更快切換到原圖
+        const watchdog = setTimeout(() => { handleAILoadError(styleKey, "超時"); }, 40000);
 
         tempImg.onload = () => {
             clearTimeout(watchdog);
@@ -242,13 +269,12 @@
         retryCount++;
         const debug = document.getElementById('prompt-debug');
         if (retryCount <= maxRetries) {
-            debug.innerText = `連線繁忙，嘗試切換線路 (${retryCount}/${maxRetries})...`;
-            // V40: 重試時稍微降低解析度，提高成功率
+            debug.innerText = `連線繁忙，降級重試中 (${retryCount}/${maxRetries})...`;
             setTimeout(() => { tryLoadAI(styleKey, 512, 768); }, 1500);
         } else {
-            debug.innerText = "AI 忙線，已切換至原圖裝裱...";
-            // V40: 快速失敗，直接切換原圖
-            setTimeout(() => { composeDirectly("⚠️ AI 忙線，已為您使用原圖"); }, 500);
+            debug.innerText = "AI 忙線，切換至原圖裝裱...";
+            // V41: 立即直通
+            setTimeout(() => { composeDirectly("⚠️ AI 忙線，已為您使用原圖"); }, 200);
         }
     }
 
@@ -264,25 +290,26 @@
         baseImg.src = sourceImageUrl;
     }
 
+    // V41: 零延遲直通 - 直接使用 previewImg DOM 元素
     function composeDirectly(loadingMsg) {
         document.getElementById('loading-text').innerText = loadingMsg;
+        // 使用 setTimeout 讓 UI 有機會更新
         setTimeout(() => {
-            const fallbackImg = new Image();
-            fallbackImg.onload = () => { processComposition(fallbackImg); };
-            fallbackImg.src = previewImg.src;
+             // 直接傳遞預覽圖的 DOM 元素，不重新 new Image
+            processComposition(previewImg);
         }, 100);
     }
 
     function processComposition(imageSource) {
         try {
-            const workW = imageSource.width;
-            const workH = imageSource.height;
+            const workW = imageSource.width || imageSource.naturalWidth;
+            const workH = imageSource.height || imageSource.naturalHeight;
 
             canvasComp.width = workW; 
             canvasComp.height = workH;
             const ctx = canvasComp.getContext('2d');
 
-            // 簡單直接繪製圖片
+            // 簡單直接繪製
             ctx.drawImage(imageSource, 0, 0);
             
             finalImg.src = canvasComp.toDataURL('image/png'); 
@@ -301,6 +328,7 @@
 
         } catch (e) {
             console.error(e);
+            // 最後一道防線：直接把預覽圖賦值給結果
             finalImg.src = previewImg.src;
             finalImg.style.display = 'block';
             switchStage('stage-4');
